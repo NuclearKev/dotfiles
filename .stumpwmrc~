@@ -1,4 +1,3 @@
-;keybindings
 (stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "C-c") "exec rxvt")
 (stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "c") "exec rxvt")
 (stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "C-d") "exec dmenu_run -b")
@@ -11,7 +10,6 @@
 ;tor-browser is sim-linked to the start-tor-browser executable in the /home/kevin/tor-browser directory
 (stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "I") "exec tor-browser")
 
-;Startup commands
 (stumpwm:run-commands
 	"grename main"
 	"gnew internet"
