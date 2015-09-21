@@ -15,3 +15,6 @@
 (global-set-key (kbd "M-C c") 'comment-region)
 (global-set-key (kbd "M-C u") 'capitalize-word)
 (global-set-key (kbd "M-C C") 'uncomment-region)
+
+;; Start-up stuff
+(setq column-number-mode t)
