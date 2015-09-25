@@ -8,7 +8,7 @@
 
 ;; Set Your lisp system and, optionally, some contribs
 (setq inferior-lisp-program "/usr/bin/sbcl")
-;(setq slime-contribs '(slime-fancy))
+(setq slime-contribs '(slime-fancy))
 
 ;; Keybindings
 (global-set-key (kbd "M-p") 'ace-window)
@@ -18,3 +18,4 @@
 
 ;; Start-up stuff
 (setq column-number-mode t)
+(set-face-attribute 'region nil :background "#390")
