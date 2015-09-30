@@ -11,7 +11,7 @@
 (setq slime-contribs '(slime-fancy))
 
 ;; Keybindings
-(global-set-key (kbd "C-x o") 'ace-window)
+(global-set-key (kbd "M-p") 'ace-window)
 (global-set-key (kbd "M-C c") 'comment-region)
 (global-set-key (kbd "M-C u") 'capitalize-word)
 (global-set-key (kbd "M-C C") 'uncomment-region)
