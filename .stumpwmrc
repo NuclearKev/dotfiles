@@ -1,4 +1,11 @@
-;;keybindings 
+(in-package :stumpwm)
+
+(require :swank)
+(swank-loader:init)
+(swank:create-server :port 4004
+		     :style swank:*communication-style*
+		     :dont-close t)
+
 (stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "C-c") "exec rxvt")
 (stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "c") "exec rxvt")
 (stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "C-d") "exec dmenu_run -b")
@@ -11,7 +18,6 @@
 ;;tor-browser is sim-linked to the start-tor-browser executable in the /home/kevin/tor-browser directory
 (stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "I") "exec tor-browser")
 
-;;start-up commands
 (stumpwm:run-commands
 	"grename main"
 	"gnew internet"
