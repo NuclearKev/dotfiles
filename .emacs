@@ -11,6 +11,8 @@
 ;;; Set Your lisp system and, optionally, some contribs
 (setq inferior-lisp-program "/usr/bin/sbcl")
 (setq slime-contribs '(slime-fancy))
+
+;;; You may need these, however, they caused errors for me
 ;;(slime-setup '(slime-company))
 ;;(global-company-mode)
 
