@@ -1,6 +1,6 @@
 (in-package :stumpwm)
 
-;;; Allows for live editting using Emacs and Slime
+;;; Allows for live editing using Emacs and Slime
 (require :swank)
 (swank-loader:init)
 (swank:create-server :port 4004
