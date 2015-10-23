@@ -3,12 +3,15 @@
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
+(global-linum-mode t)
 
 ;;; Keybindings
 (global-set-key (kbd "C-x o") 'ace-window)
 (global-set-key (kbd "M-C c") 'comment-region)
-(global-set-key (kbd "M-C u") 'capitalize-word)
-(global-set-key (kbd "M-C C") 'uncomment-region)
+(global-set-key (kbd "M-C C") 'capitalize-word)
+(global-set-key (kbd "M-C u") 'uncomment-region)
+(global-set-key (kbd "C-g") 'goto-line)
+(global-set-key (kbd "C-u") 'keyboard-escape-quit)
 
 ;;; Set up to use melpa packages
 ;;; You may need to comment this out to get certain packaes (like ace-window)
