@@ -1,27 +1,35 @@
-;;; Start up stuff
-(setq column-number-mode t)
+;; Disable menu-bar, tool-bar and scroll-bar to increase the usable space
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
 (global-linum-mode t)
-(display-time-mode t)
-
-;; Shrink fringes to 1 pixel
-(fringe-mode 1)
-
-;; Display time and battery
+(column-number-mode t)
+(line-number-mode -1)
+(fringe-mode 1)   ; Shrink fringes to 1 pixel
 (setq display-time-default-load-average nil)
 (display-time-mode t)
 (display-battery-mode t)
+(setq twittering-use-master-password t) ;allows me to automatically login to my twitter account
+(setq twittering-icon-mode t)		;gimme pictures
 
-;; Disable Linum-mode for certain packages/files
+;; Disable Linum-mode for certain modes
 (add-hook 'term-mode-hook
-  '(lambda () (linum-mode 0)))
+	  '(lambda () (linum-mode 0)))
+(add-hook 'slime-repl-mode-hook
+	  '(lambda () (linum-mode 0)))
 (add-hook 'calc-mode-hook
-  '(lambda () (linum-mode 0)))
+	  '(lambda () (linum-mode 0)))
+(add-hook 'calc-trail-mode-hook
+	  '(lambda () (linum-mode 0)))
 (add-hook 'eww-mode-hook
-  '(lambda () (linum-mode 0)))
+	  '(lambda () (linum-mode 0)))
+(add-hook 'twittering-mode-hook
+	  '(lambda () (linum-mode 0)))
+(add-hook 'erc-mode-hook
+	  '(lambda () (linum-mode 0)))
 
+;; Enable Auto-Complete-mode globally
+(add-hook 'after-init-hook 'global-auto-complete-mode)
 
 ;; You are strongly encouraged to enable `ido-mode' (or something similar) to
 ;; alter to default behavior of 'C-x b', or you will take great pains to switch
@@ -34,16 +42,17 @@
 ;; (see next section)
 (server-start)
 
-;;; Keybindings
-(global-set-key (kbd "C-x o") 'ace-window) ;if installed
+;; Personal Keybindings
 (global-set-key (kbd "M-C c") 'comment-region)
 (global-set-key (kbd "M-C C") 'capitalize-word)
 (global-set-key (kbd "M-C u") 'uncomment-region)
-(global-set-key (kbd "M-#")   'dictionary-search) ;if installed
+(global-set-key (kbd "M-#")   'dictionary-search)
 (global-set-key (kbd "M-*")   'calc)
+(global-set-key (kbd "C-*")   'calendar)
 
-;;; Set up to use melpa packages
-;;; You may need to comment this out to get certain packaes (like ace-window)
+;; Melpa
+;; Set up to use melpa packages
+;; You may need to comment this out to get certain packaes (like ace-window)
 (when (>= emacs-major-version 24)
   (require 'package)
   (add-to-list
@@ -52,7 +61,8 @@
    t)
   (package-initialize))
 
-;;; Set Your lisp system and, optionally, some contribs
+;; Slime setup
+;; Set Your lisp system and, optionally, some contribs
 (setq inferior-lisp-program "/usr/bin/sbcl")
 (setq slime-contribs '(slime-fancy))
 ;;(slime-setup '(slime-company))
@@ -151,5 +161,47 @@
 
 ;; Do not forget to enable EXWM. It will start by itself when things are ready.
 (exwm-enable)
-
-;;; If you want a theme, get it yourself ;;;
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(ansi-color-names-vector
+   ["#3F3F3F" "#CC9393" "#7F9F7F" "#F0DFAF" "#8CD0D3" "#DC8CC3" "#93E0E3" "#DCDCCC"])
+ '(custom-enabled-themes (quote (grandshell)))
+ '(custom-safe-themes
+   (quote
+    ("f0d8af755039aa25cd0792ace9002ba885fd14ac8e8807388ab00ec84c9497d7" "dc54983ec5476b6187e592af57c093a42790f9d8071d9a0163ff4ff3fbea2189" "ce557950466bf42096853c6dac6875b9ae9c782b8665f62478980cc5e3b6028d" "b959f70a09f7ae16812bfc5bec2fd6b21081bee1f68686cdd80b3045bfc27b21" "693f5a81a3728c2548efb4118c81941933cf0f7b614f9f3133101395e5830152" default)))
+ '(fci-rule-color "#383838")
+ '(jabber-account-list nil)
+ '(nrepl-message-colors
+   (quote
+    ("#CC9393" "#DFAF8F" "#F0DFAF" "#7F9F7F" "#BFEBBF" "#93E0E3" "#94BFF3" "#DC8CC3")))
+ '(vc-annotate-background "#2B2B2B")
+ '(vc-annotate-color-map
+   (quote
+    ((20 . "#BC8383")
+     (40 . "#CC9393")
+     (60 . "#DFAF8F")
+     (80 . "#D0BF8F")
+     (100 . "#E0CF9F")
+     (120 . "#F0DFAF")
+     (140 . "#5F7F5F")
+     (160 . "#7F9F7F")
+     (180 . "#8FB28F")
+     (200 . "#9FC59F")
+     (220 . "#AFD8AF")
+     (240 . "#BFEBBF")
+     (260 . "#93E0E3")
+     (280 . "#6CA0A3")
+     (300 . "#7CB8BB")
+     (320 . "#8CD0D3")
+     (340 . "#94BFF3")
+     (360 . "#DC8CC3"))))
+ '(vc-annotate-very-old-color "#DC8CC3"))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
