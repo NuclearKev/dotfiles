@@ -39,6 +39,17 @@
 (add-hook 'eshell-mode-hook
 	  '(lambda () (linum-mode 0)))
 
+;; Enable M-RET to add another comment line. This is mainly for typing long
+;; explainations that take more than 1 line. For example, this comment...
+;; Note: Since the other languages I use have things like /* */, they don't
+;; need this feature.
+(add-hook 'emacs-lisp-mode-hook
+	  '(lambda () (local-set-key (kbd "M-RET") 'comment-indent-new-line)))
+(add-hook 'common-lisp-mode-hook
+	  '(lambda () (local-set-key (kbd "M-RET") 'comment-indent-new-line)))
+(add-hook 'lisp-mode-hook
+	  '(lambda () (local-set-key (kbd "M-RET") 'comment-indent-new-line)))
+
 ;; Enable Auto-Complete-mode globally
 (add-hook 'after-init-hook 'global-auto-complete-mode)
 
