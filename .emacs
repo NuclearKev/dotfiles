@@ -11,6 +11,15 @@
 (display-battery-mode t)
 (setq twittering-use-master-password t) ;allows me to automatically login to my twitter account
 (setq twittering-icon-mode t)		;gimme pictures
+(ido-mode 1)
+
+;; So Eshell doesn't keep asking for my sudo password
+;; I needed to use an alias: alias sudo 'eshell/sudo $*'
+(require 'em-tramp)
+(setq eshell-prefer-lisp-functions t)
+(setq eshell-prefer-lisp-variables t)
+(setq password-cache t) ; enable password caching
+(setq password-cache-expiry 300) ; for 5 minutes (time in secs)
 
 ;; Disable Linum-mode for certain modes
 (add-hook 'term-mode-hook
@@ -27,28 +36,19 @@
 	  '(lambda () (linum-mode 0)))
 (add-hook 'erc-mode-hook
 	  '(lambda () (linum-mode 0)))
+(add-hook 'eshell-mode-hook
+	  '(lambda () (linum-mode 0)))
 
 ;; Enable Auto-Complete-mode globally
 (add-hook 'after-init-hook 'global-auto-complete-mode)
-
-;; You are strongly encouraged to enable `ido-mode' (or something similar) to
-;; alter to default behavior of 'C-x b', or you will take great pains to switch
-;; to or back from a floating frame (remember 'C-x 5 o' if you refuse this
-;; proposal however)
-;; You may also want to call `exwm-enable-ido-workaround' later (see below)
-(ido-mode 1)
-
-;; Emacs server is not required to run EXWM but it has some interesting uses
-;; (see next section)
-(server-start)
 
 ;; Personal Keybindings
 (global-set-key (kbd "M-C c") 'comment-region)
 (global-set-key (kbd "M-C C") 'capitalize-word)
 (global-set-key (kbd "M-C u") 'uncomment-region)
 (global-set-key (kbd "M-#")   'dictionary-search)
-(global-set-key (kbd "M-*")   'calc)
-(global-set-key (kbd "C-*")   'calendar)
+(global-set-key (kbd "M-<f1>")   'calc)
+(global-set-key (kbd "M-<f2>")   'calendar)
 
 ;; Melpa
 ;; Set up to use melpa packages
@@ -71,8 +71,11 @@
 
 ;;;; Below are configurations for EXWM
 
+;; Emacs server is not required to run EXWM but it has some interesting uses
+(server-start)
+
 ;; Add paths
-(add-to-list 'load-path "~/.emacs.d/elpa/xelb-0.3/")
+(add-to-list 'load-path "~/.emacs.d/elpa/xelb-0.4/")
 (add-to-list 'load-path "~/.emacs.d/elpa/exwm-0.1/")
 (add-to-list 'load-path "~/.emacs.d/elpa/cl-generic-0.2/")
 
@@ -168,6 +171,7 @@
  ;; If there is more than one, they won't work right.
  '(ansi-color-names-vector
    ["#3F3F3F" "#CC9393" "#7F9F7F" "#F0DFAF" "#8CD0D3" "#DC8CC3" "#93E0E3" "#DCDCCC"])
+ '(browse-url-browser-function (quote eww-browse-url))
  '(custom-enabled-themes (quote (grandshell)))
  '(custom-safe-themes
    (quote
