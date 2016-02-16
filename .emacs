@@ -53,6 +53,12 @@
 ;; Enable Auto-Complete-mode globally
 (add-hook 'after-init-hook 'global-auto-complete-mode)
 
+;; Enable flyspell for text and LaTeX files
+(add-hook 'text-mode-hook
+	  '(lambda () (flyspell-mode t)))
+(add-hook 'latex-mode-hook
+	  '(lambda () (flyspell-mode t)))
+
 ;; Personal Keybindings
 (global-set-key (kbd "M-C c") 'comment-region)
 (global-set-key (kbd "M-C C") 'capitalize-word)
@@ -63,7 +69,6 @@
 
 ;; Melpa
 ;; Set up to use melpa packages
-;; You may need to comment this out to get certain packaes (like ace-window)
 (when (>= emacs-major-version 24)
   (require 'package)
   (add-to-list
