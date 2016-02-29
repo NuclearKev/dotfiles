@@ -66,6 +66,23 @@
 (global-set-key (kbd "M-#")   'dictionary-search)
 (global-set-key (kbd "M-<f1>")   'calc)
 (global-set-key (kbd "M-<f2>")   'calendar)
+(global-set-key (kbd "C-:") 'avy-goto-char)
+(global-set-key (kbd "C-'") 'avy-goto-char-2)
+(global-set-key (kbd "M-g f") 'avy-goto-line)
+(global-set-key (kbd "M-g w") 'avy-goto-word-1)
+(global-set-key (kbd "M-G G") 'magit-status)
+
+(defun backward-delete-word (arg)
+  "Delete characters backward until encountering the beginning of a word.
+With argument ARG, do this that many times."
+ (interactive "p")
+ (delete-region (point) (progn (backward-word arg) (point))))
+
+(defun forward-delete-word (arg)
+  "Delete characters forward until encountering the beginning of a word.
+With argument ARG, do this that many times."
+ (interactive "p")
+  (delete-region (point) (progn (forward-word arg) (point))))
 
 ;; Melpa
 ;; Set up to use melpa packages
