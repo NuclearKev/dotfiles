@@ -1,25 +1,16 @@
-;; Disable menu-bar, tool-bar and scroll-bar to increase the usable space
-(menu-bar-mode -1)
+ (menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
 (global-linum-mode t)
 (column-number-mode t)
 (line-number-mode -1)
-(fringe-mode 1)   ; Shrink fringes to 1 pixel
-(setq display-time-default-load-average nil)
 (display-time-mode t)
-(display-battery-mode t)
-(setq twittering-use-master-password t) ;allows me to automatically login to my twitter account
-(setq twittering-icon-mode t)		;gimme pictures
+(fringe-mode 1)   ; Shrink fringes to 1 pixel
+(set-face-attribute 'default nil :height 160)
+(global-hl-line-mode t)
+(set-face-background hl-line-face "grey15")
 (ido-mode 1)
-
-;; So Eshell doesn't keep asking for my sudo password
-;; I needed to use an alias: alias sudo 'eshell/sudo $*'
-(require 'em-tramp)
-(setq eshell-prefer-lisp-functions t)
-(setq eshell-prefer-lisp-variables t)
-(setq password-cache t) ; enable password caching
-(setq password-cache-expiry 300) ; for 5 minutes (time in secs)
+(setq confirm-kill-emacs #'y-or-n-p)	;Asks if you wish to leave emacs
 
 ;; Disable Linum-mode for certain modes
 (add-hook 'term-mode-hook
@@ -38,6 +29,16 @@
 	  '(lambda () (linum-mode 0)))
 (add-hook 'eshell-mode-hook
 	  '(lambda () (linum-mode 0)))
+(add-hook 'inferior-ess-mode-hook
+	  '(lambda () (linum-mode 0)))
+
+;; Start flyspell for text and latex mode
+(add-hook 'text-mode-hook
+	  '(lambda () (flyspell-mode t)))
+(add-hook 'latex-mode-hook
+	  '(lambda () (flyspell-mode t)))
+(add-hook 'erc-mode-hook
+	  '(lambda () (flyspell-mode t)))
 
 ;; Enable M-RET to add another comment line. This is mainly for typing long
 ;; explainations that take more than 1 line. For example, this comment...
@@ -49,15 +50,36 @@
 	  '(lambda () (local-set-key (kbd "M-RET") 'comment-indent-new-line)))
 (add-hook 'lisp-mode-hook
 	  '(lambda () (local-set-key (kbd "M-RET") 'comment-indent-new-line)))
+(add-hook 'sh-mode-hook
+	  '(lambda () (local-set-key (kbd "M-RET") 'comment-indent-new-line)))
+(add-hook 'R-mode-hook
+	  '(lambda () (local-set-key (kbd "M-RET") 'comment-indent-new-line)))
+
 
 ;; Enable Auto-Complete-mode globally
 (add-hook 'after-init-hook 'global-auto-complete-mode)
 
-;; Enable flyspell for text and LaTeX files
+;; Enable a line at the 80 character column for certain modes
+(setq fci-rule-column 80)
+
 (add-hook 'text-mode-hook
-	  '(lambda () (flyspell-mode t)))
+	  '(lambda () (fci-mode t)))
 (add-hook 'latex-mode-hook
-	  '(lambda () (flyspell-mode t)))
+	  '(lambda () (fci-mode t)))
+(add-hook 'emacs-lisp-mode-hook
+	  '(lambda () (fci-mode t)))
+(add-hook 'common-lisp-mode-hook
+	  '(lambda () (fci-mode t)))
+(add-hook 'lisp-mode-hook
+	  '(lambda () (fci-mode t)))
+(add-hook 'sh-mode-hook
+	  '(lambda () (fci-mode t)))
+(add-hook 'R-mode-hook
+	  '(lambda () (fci-mode t)))
+(add-hook 'C-mode-hook
+	  '(lambda () (fci-mode t)))
+(add-hook 'rust-mode-hook
+	  '(lambda () (fci-mode t)))
 
 ;; Personal Keybindings
 (global-set-key (kbd "M-C c") 'comment-region)
@@ -69,6 +91,7 @@
 (global-set-key (kbd "C-:") 'avy-goto-char)
 (global-set-key (kbd "C-'") 'avy-goto-char-2)
 (global-set-key (kbd "M-g f") 'avy-goto-line)
+(global-set-key (kbd "M-g M-f") 'avy-goto-line)
 (global-set-key (kbd "M-g w") 'avy-goto-word-1)
 (global-set-key (kbd "M-G G") 'magit-status)
 
@@ -84,8 +107,20 @@ With argument ARG, do this that many times."
  (interactive "p")
   (delete-region (point) (progn (forward-word arg) (point))))
 
-;; Melpa
-;; Set up to use melpa packages
+(global-set-key (kbd "M-d") 'forward-delete-word)
+(global-set-key (kbd "M-<backspace>") 'backward-delete-word)
+
+;; Mac only
+(setq mac-command-key-is-meta t
+      mac-command-modifier 'meta
+      ns-function-modifier 'control)
+
+(setq ispell-program-name "/usr/local/bin/ispell")
+(setq inferior-R-program-name "/usr/local/bin/R")
+(setq erc-nick "NuclearKev")  
+
+;;; Set up to use melpa packages
+;;; You may need to comment this out to get certain packaes (like ace-window)
 (when (>= emacs-major-version 24)
   (require 'package)
   (add-to-list
@@ -94,13 +129,11 @@ With argument ARG, do this that many times."
    t)
   (package-initialize))
 
-;; Slime setup
-;; Set Your lisp system and, optionally, some contribs
-(setq inferior-lisp-program "/usr/bin/sbcl")
+;;; Set Your lisp system and, optionally, some contribs
+(setq inferior-lisp-program "/usr/local/bin/sbcl")
 (setq slime-contribs '(slime-fancy))
 ;;(slime-setup '(slime-company))
 ;;(global-company-mode)
-
 
 ;;;; Below are configurations for EXWM
 
