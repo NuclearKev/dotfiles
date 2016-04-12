@@ -10,6 +10,7 @@
 (global-hl-line-mode t)
 (set-face-background hl-line-face "grey15")
 (ido-mode 1)
+(setq-default tab-width 2)
 (setq confirm-kill-emacs #'y-or-n-p)	;Asks if you wish to leave emacs
 
 ;; Disable Linum-mode for certain modes
