@@ -16,7 +16,7 @@
 (global-auto-revert-mode t)
 (setq confirm-kill-emacs #'y-or-n-p)	;Asks if you wish to leave emacs
 
-;; Removes trailer whitespace before saving.
+;; Removes trailing whitespace before saving.
 (add-hook 'before-save-hook (lambda ()
 															(delete-trailing-whitespace)))
 
@@ -152,7 +152,6 @@ With argument ARG, do this that many times."
 (setq slime-contribs '(slime-fancy))
 ;;(slime-setup '(slime-company))
 ;;(global-company-mode)
-
 
 ;;;; Below are configurations for EXWM
 
