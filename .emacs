@@ -1,7 +1,8 @@
+;; General Modifications
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
-(global-linum-mode t)
+;;(global-linum-mode t)
 (column-number-mode t)
 (line-number-mode -1)
 (display-time-mode t)
@@ -10,102 +11,102 @@
 (global-hl-line-mode t)
 (set-face-background hl-line-face "grey15")
 (ido-mode 1)
+(setf ido-enable-flex-matching t)				;makes switches stuff easier
 (setq-default tab-width 2)
+(global-auto-revert-mode t)
 (setq confirm-kill-emacs #'y-or-n-p)	;Asks if you wish to leave emacs
 
-;; Disable Linum-mode for certain modes
-(add-hook 'term-mode-hook
-	  '(lambda () (linum-mode 0)))
-(add-hook 'slime-repl-mode-hook
-	  '(lambda () (linum-mode 0)))
-(add-hook 'calc-mode-hook
-	  '(lambda () (linum-mode 0)))
-(add-hook 'calc-trail-mode-hook
-	  '(lambda () (linum-mode 0)))
-(add-hook 'eww-mode-hook
-	  '(lambda () (linum-mode 0)))
-(add-hook 'twittering-mode-hook
-	  '(lambda () (linum-mode 0)))
-(add-hook 'erc-mode-hook
-	  '(lambda () (linum-mode 0)))
-(add-hook 'eshell-mode-hook
-	  '(lambda () (linum-mode 0)))
-(add-hook 'inferior-ess-mode-hook
-	  '(lambda () (linum-mode 0)))
+;; Removes trailer whitespace before saving.
+(add-hook 'before-save-hook (lambda ()
+															(delete-trailing-whitespace)))
 
-;; Start flyspell for text and latex mode
+;; Thou shall use 2 spaces indenting
+(setq typescript-indent-level 2)
+
+;; Enable a line at the 80 character column for certain modes
+(setq fci-rule-column 80)
+
+;; Enable some good modes when editing source files
+(add-hook 'prog-mode-hook 'column-enforce-mode)
+(add-hook 'prog-mode-hook 'linum-mode)
+(add-hook 'prog-mode-hook 'auto-complete-mode)
+(add-hook 'prog-mode-hook 'fci-mode)
+(add-hook 'prog-mode-hook 'flycheck-mode)
+(add-hook 'prog-mode-hook 'paren-activate)
+
+;; Lets not forget the text modes!
 (add-hook 'text-mode-hook
-	  '(lambda () (flyspell-mode t)))
+					'(lambda () (fci-mode t)))
 (add-hook 'latex-mode-hook
-	  '(lambda () (flyspell-mode t)))
+					'(lambda () (fci-mode t)))
+(add-hook 'markdown-mode-hook
+					'(lambda () (fci-mode t)))
+(add-hook 'text-mode-hook
+					'(lambda () (linum-mode t)))
+(add-hook 'latex-mode-hook
+					'(lambda () (linum-mode t)))
+(add-hook 'markdown-mode-hook
+					'(lambda () (linum-mode t)))
+(add-hook 'text-mode-hook
+					'(lambda () (column-enforce-mode t)))
+(add-hook 'latex-mode-hook
+					'(lambda () (column-enforce-mode t)))
+(add-hook 'markdown-mode-hook
+					'(lambda () (column-enforce-mode t)))
+(add-hook 'latex-mode-hook
+					'(lambda () (flycheck-mode t)))
+
+;; Start flyspell for text, latex, erc, and org modes
+(add-hook 'text-mode-hook
+					'(lambda () (flyspell-mode t)))
+(add-hook 'latex-mode-hook
+					'(lambda () (flyspell-mode t)))
 (add-hook 'erc-mode-hook
-	  '(lambda () (flyspell-mode t)))
+					'(lambda () (flyspell-mode t)))
+(add-hook 'org-mode-hook
+					'(lambda () (flyspell-mode t)))
+(add-hook 'markdown-mode-hook
+					'(lambda () (flyspell-mode t)))
 
 ;; Enable M-RET to add another comment line. This is mainly for typing long
 ;; explainations that take more than 1 line. For example, this comment...
 ;; Note: Since the other languages I use have things like /* */, they don't
 ;; need this feature.
 (add-hook 'emacs-lisp-mode-hook
-	  '(lambda () (local-set-key (kbd "M-RET") 'comment-indent-new-line)))
+					'(lambda () (local-set-key (kbd "M-RET") 'comment-indent-new-line)))
 (add-hook 'common-lisp-mode-hook
-	  '(lambda () (local-set-key (kbd "M-RET") 'comment-indent-new-line)))
+					'(lambda () (local-set-key (kbd "M-RET") 'comment-indent-new-line)))
 (add-hook 'lisp-mode-hook
-	  '(lambda () (local-set-key (kbd "M-RET") 'comment-indent-new-line)))
+					'(lambda () (local-set-key (kbd "M-RET") 'comment-indent-new-line)))
 (add-hook 'sh-mode-hook
-	  '(lambda () (local-set-key (kbd "M-RET") 'comment-indent-new-line)))
+					'(lambda () (local-set-key (kbd "M-RET") 'comment-indent-new-line)))
 (add-hook 'R-mode-hook
-	  '(lambda () (local-set-key (kbd "M-RET") 'comment-indent-new-line)))
-
-
-;; Enable Auto-Complete-mode globally
-(add-hook 'after-init-hook 'global-auto-complete-mode)
-
-;; Enable a line at the 80 character column for certain modes
-(setq fci-rule-column 80)
-
-(add-hook 'text-mode-hook
-	  '(lambda () (fci-mode t)))
-(add-hook 'latex-mode-hook
-	  '(lambda () (fci-mode t)))
-(add-hook 'emacs-lisp-mode-hook
-	  '(lambda () (fci-mode t)))
-(add-hook 'common-lisp-mode-hook
-	  '(lambda () (fci-mode t)))
-(add-hook 'lisp-mode-hook
-	  '(lambda () (fci-mode t)))
-(add-hook 'sh-mode-hook
-	  '(lambda () (fci-mode t)))
-(add-hook 'R-mode-hook
-	  '(lambda () (fci-mode t)))
-(add-hook 'C-mode-hook
-	  '(lambda () (fci-mode t)))
-(add-hook 'rust-mode-hook
-	  '(lambda () (fci-mode t)))
+					'(lambda () (local-set-key (kbd "M-RET") 'comment-indent-new-line)))
 
 ;; Personal Keybindings
 (global-set-key (kbd "M-C c") 'comment-region)
 (global-set-key (kbd "M-C C") 'capitalize-word)
 (global-set-key (kbd "M-C u") 'uncomment-region)
-(global-set-key (kbd "M-#")   'dictionary-search)
-(global-set-key (kbd "M-<f1>")   'calc)
-(global-set-key (kbd "M-<f2>")   'calendar)
+(global-set-key (kbd "C-x &") 'calendar)
 (global-set-key (kbd "C-:") 'avy-goto-char)
 (global-set-key (kbd "C-'") 'avy-goto-char-2)
 (global-set-key (kbd "M-g f") 'avy-goto-line)
 (global-set-key (kbd "M-g M-f") 'avy-goto-line)
 (global-set-key (kbd "M-g w") 'avy-goto-word-1)
+(global-set-key (kbd "M-g M-w") 'avy-goto-word-1)
 (global-set-key (kbd "M-G G") 'magit-status)
+(global-set-key (kbd "C-|") 'pop-global-mark) ;return to last cursor position
 
 (defun backward-delete-word (arg)
   "Delete characters backward until encountering the beginning of a word.
 With argument ARG, do this that many times."
- (interactive "p")
- (delete-region (point) (progn (backward-word arg) (point))))
+	(interactive "p")
+	(delete-region (point) (progn (backward-word arg) (point))))
 
 (defun forward-delete-word (arg)
   "Delete characters forward until encountering the beginning of a word.
 With argument ARG, do this that many times."
- (interactive "p")
+	(interactive "p")
   (delete-region (point) (progn (forward-word arg) (point))))
 
 (global-set-key (kbd "M-d") 'forward-delete-word)
@@ -116,13 +117,13 @@ With argument ARG, do this that many times."
   (split-window-vertically)
   (other-window 1 nil)
   (switch-to-next-buffer))
-  
+
 (defun hsplit-last-buffer ()
   (interactive)
   (split-window-horizontally)
   (other-window 1 nil)
   (switch-to-next-buffer))
- 
+
 (global-set-key (kbd "C-x 2") 'vsplit-last-buffer)
 (global-set-key (kbd "C-x 3") 'hsplit-last-buffer)
 
@@ -130,6 +131,7 @@ With argument ARG, do this that many times."
 (setq mac-command-key-is-meta t
       mac-command-modifier 'meta
       ns-function-modifier 'control)
+(setenv "PATH" (concat (getenv "PATH") ":/Library/TeX/texbin"))
 
 (setq ispell-program-name "/usr/local/bin/ispell")
 (setq inferior-R-program-name "/usr/local/bin/R")
@@ -150,6 +152,7 @@ With argument ARG, do this that many times."
 (setq slime-contribs '(slime-fancy))
 ;;(slime-setup '(slime-company))
 ;;(global-company-mode)
+
 
 ;;;; Below are configurations for EXWM
 
