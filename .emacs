@@ -9,7 +9,7 @@
 (fringe-mode 1)   ; Shrink fringes to 1 pixel
 (set-face-attribute 'default nil :height 160)
 (global-hl-line-mode t)
-(set-face-background hl-line-face "grey15")
+(set-face-background hl-line-face "#3C3C3C")
 (ido-mode 1)
 (setf ido-enable-flex-matching t)				;makes switches stuff easier
 (setq-default tab-width 2)
@@ -47,11 +47,7 @@
 					'(lambda () (linum-mode t)))
 (add-hook 'markdown-mode-hook
 					'(lambda () (linum-mode t)))
-(add-hook 'text-mode-hook
-					'(lambda () (column-enforce-mode t)))
 (add-hook 'latex-mode-hook
-					'(lambda () (column-enforce-mode t)))
-(add-hook 'markdown-mode-hook
 					'(lambda () (column-enforce-mode t)))
 (add-hook 'latex-mode-hook
 					'(lambda () (flycheck-mode t)))
@@ -127,6 +123,15 @@ With argument ARG, do this that many times."
 (global-set-key (kbd "C-x 2") 'vsplit-last-buffer)
 (global-set-key (kbd "C-x 3") 'hsplit-last-buffer)
 
+(defun kill-and-delete-window ()
+	(interactive)
+	(kill-buffer)
+	(if (equal 1 (length (window-list)))
+			nil
+		(delete-window)))
+
+(global-set-key (kbd "C-x K") 'kill-and-delete-window)
+
 ;; Mac only
 (setq mac-command-key-is-meta t
       mac-command-modifier 'meta
@@ -135,7 +140,7 @@ With argument ARG, do this that many times."
 
 (setq ispell-program-name "/usr/local/bin/ispell")
 (setq inferior-R-program-name "/usr/local/bin/R")
-(setq erc-nick "NuclearKev")  
+(setq erc-nick "NuclearKev")
 
 ;;; Set up to use melpa packages
 ;;; You may need to comment this out to get certain packaes (like ace-window)
@@ -152,141 +157,15 @@ With argument ARG, do this that many times."
 (setq slime-contribs '(slime-fancy))
 ;;(slime-setup '(slime-company))
 ;;(global-company-mode)
-
-;;;; Below are configurations for EXWM
-
-;; Emacs server is not required to run EXWM but it has some interesting uses
-(server-start)
-
-;; Add paths
-(add-to-list 'load-path "~/.emacs.d/elpa/xelb-0.4/")
-(add-to-list 'load-path "~/.emacs.d/elpa/exwm-0.1/")
-(add-to-list 'load-path "~/.emacs.d/elpa/cl-generic-0.2/")
-
-;; Load EXWM
-(require 'exwm)
-
-;; Fix problems with Ido
-(require 'exwm-config)
-(exwm-config-ido)
-
-;; Sets there to be 10 workspaces
-(setq exwm-workspace-number 10)
-
-(add-hook 'exwm-update-class-hook
-          (lambda ()
-            (unless (or (string-prefix-p "sun-awt-X11-" exwm-instance-name)
-                        (string= "gimp" exwm-instance-name))
-              (exwm-workspace-rename-buffer exwm-class-name))))
-(add-hook 'exwm-update-title-hook
-          (lambda ()
-            (when (or (not exwm-instance-name)
-                      (string-prefix-p "sun-awt-X11-" exwm-instance-name)
-                      (string= "gimp" exwm-instance-name))
-              (exwm-workspace-rename-buffer exwm-title))))
-
-;; `exwm-input-set-key' allows you to set a global key binding (available in
-;; any case). Following are a few examples.
-;; + We always need a way to go back to line-mode from char-mode
-(exwm-input-set-key (kbd "s-r") 'exwm-reset)
-;; + Bind a key to switch workspace interactively
-(exwm-input-set-key (kbd "s-w") 'exwm-workspace-switch)
-;; + Set shortcuts to switch to a certain workspace.
-(exwm-input-set-key (kbd "s-0")
-                    (lambda () (interactive) (exwm-workspace-switch 0)))
-(exwm-input-set-key (kbd "s-1")
-                    (lambda () (interactive) (exwm-workspace-switch 1)))
-(exwm-input-set-key (kbd "s-2")
-                    (lambda () (interactive) (exwm-workspace-switch 2)))
-(exwm-input-set-key (kbd "s-3")
-                    (lambda () (interactive) (exwm-workspace-switch 3)))
-(exwm-input-set-key (kbd "s-4")
-                    (lambda () (interactive) (exwm-workspace-switch 4)))
-(exwm-input-set-key (kbd "s-5")
-                    (lambda () (interactive) (exwm-workspace-switch 5)))
-(exwm-input-set-key (kbd "s-6")
-                    (lambda () (interactive) (exwm-workspace-switch 6)))
-(exwm-input-set-key (kbd "s-7")
-                    (lambda () (interactive) (exwm-workspace-switch 7)))
-(exwm-input-set-key (kbd "s-8")
-                    (lambda () (interactive) (exwm-workspace-switch 8)))
-(exwm-input-set-key (kbd "s-9")
-                    (lambda () (interactive) (exwm-workspace-switch 9)))
-
-;; + Application launcher ('M-&' also works if the output buffer does not
-;;   bother you). Note that there is no need for processes to be created by
-;;   Emacs.
-(exwm-input-set-key (kbd "s-<SPC>")
-                    (lambda (command)
-                      (interactive (list (read-shell-command "$ ")))
-                      (start-process-shell-command command nil command)))
-
-(exwm-input-set-key (kbd "s-l")
-                    (lambda () (interactive) (start-process "" nil "slock")))
-
-;; The following example demonstrates how to set a key binding only available
-;; in line mode. It's simply done by first push the prefix key to
-;; `exwm-input-prefix-keys' and then add the key sequence to `exwm-mode-map'.
-;; The example shorten 'C-c q' to 'C-q'.
-(push ?\C-q exwm-input-prefix-keys)
-(define-key exwm-mode-map [?\C-q] 'exwm-input-send-next-key)
-
-;; The following example demonstrates how to use simulation keys to mimic the
-;; behavior of Emacs. The argument to `exwm-input-set-simulation-keys' is a
-;; list of cons cells (SRC . DEST), where SRC is the key sequence you press and
-;; DEST is what EXWM actually sends to application. Note that SRC must be a key
-;; sequence (of type vector or string), while DEST can also be a single key.
-(exwm-input-set-simulation-keys
- '(([?\C-b] . left)
-   ([?\C-f] . right)
-   ([?\C-p] . up)
-   ([?\C-n] . down)
-   ([?\C-a] . home)
-   ([?\C-e] . end)
-   ([?\M-v] . prior)
-   ([?\C-v] . next)))
-
-;; Do not forget to enable EXWM. It will start by itself when things are ready.
-(exwm-enable)
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(ansi-color-names-vector
-   ["#3F3F3F" "#CC9393" "#7F9F7F" "#F0DFAF" "#8CD0D3" "#DC8CC3" "#93E0E3" "#DCDCCC"])
- '(browse-url-browser-function (quote eww-browse-url))
- '(custom-enabled-themes (quote (grandshell)))
+ '(custom-enabled-themes (quote (ample)))
  '(custom-safe-themes
-   (quote
-    ("f0d8af755039aa25cd0792ace9002ba885fd14ac8e8807388ab00ec84c9497d7" "dc54983ec5476b6187e592af57c093a42790f9d8071d9a0163ff4ff3fbea2189" "ce557950466bf42096853c6dac6875b9ae9c782b8665f62478980cc5e3b6028d" "b959f70a09f7ae16812bfc5bec2fd6b21081bee1f68686cdd80b3045bfc27b21" "693f5a81a3728c2548efb4118c81941933cf0f7b614f9f3133101395e5830152" default)))
- '(fci-rule-color "#383838")
- '(jabber-account-list nil)
- '(nrepl-message-colors
-   (quote
-    ("#CC9393" "#DFAF8F" "#F0DFAF" "#7F9F7F" "#BFEBBF" "#93E0E3" "#94BFF3" "#DC8CC3")))
- '(vc-annotate-background "#2B2B2B")
- '(vc-annotate-color-map
-   (quote
-    ((20 . "#BC8383")
-     (40 . "#CC9393")
-     (60 . "#DFAF8F")
-     (80 . "#D0BF8F")
-     (100 . "#E0CF9F")
-     (120 . "#F0DFAF")
-     (140 . "#5F7F5F")
-     (160 . "#7F9F7F")
-     (180 . "#8FB28F")
-     (200 . "#9FC59F")
-     (220 . "#AFD8AF")
-     (240 . "#BFEBBF")
-     (260 . "#93E0E3")
-     (280 . "#6CA0A3")
-     (300 . "#7CB8BB")
-     (320 . "#8CD0D3")
-     (340 . "#94BFF3")
-     (360 . "#DC8CC3"))))
- '(vc-annotate-very-old-color "#DC8CC3"))
+	 (quote
+		("a6a1a927cf30109204faf4484280fbc7084fab09c20de69502f312328e7aa318" default))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
