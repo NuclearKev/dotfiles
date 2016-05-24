@@ -15,6 +15,11 @@
 (setq-default tab-width 2)
 (global-auto-revert-mode t)
 (setq confirm-kill-emacs #'y-or-n-p)	;Asks if you wish to leave emacs
+(setq org-src-fontify-natively t)	;syntax highlighting in org-mode source blocks
+
+(set-fontset-font												;for emojis
+ t 'symbol
+ (font-spec :family "Apple Color Emoji") nil 'prepend)
 
 ;; Removes trailing whitespace before saving.
 (add-hook 'before-save-hook (lambda ()
@@ -28,7 +33,7 @@
 
 ;; Enable some good modes when editing source files
 (add-hook 'prog-mode-hook 'column-enforce-mode)
-(add-hook 'prog-mode-hook 'linum-mode)
+(add-hook 'prog-mode-hook 'nlinum-mode)
 (add-hook 'prog-mode-hook 'auto-complete-mode)
 (add-hook 'prog-mode-hook 'fci-mode)
 (add-hook 'prog-mode-hook 'flycheck-mode)
@@ -42,11 +47,11 @@
 (add-hook 'markdown-mode-hook
 					'(lambda () (fci-mode t)))
 (add-hook 'text-mode-hook
-					'(lambda () (linum-mode t)))
+					'(lambda () (nlinum-mode t)))
 (add-hook 'latex-mode-hook
-					'(lambda () (linum-mode t)))
+					'(lambda () (nlinum-mode t)))
 (add-hook 'markdown-mode-hook
-					'(lambda () (linum-mode t)))
+					'(lambda () (nlinum-mode t)))
 (add-hook 'latex-mode-hook
 					'(lambda () (column-enforce-mode t)))
 (add-hook 'latex-mode-hook
@@ -92,6 +97,13 @@
 (global-set-key (kbd "M-g M-w") 'avy-goto-word-1)
 (global-set-key (kbd "M-G G") 'magit-status)
 (global-set-key (kbd "C-|") 'pop-global-mark) ;return to last cursor position
+(global-set-key (kbd "C-x B") 'list-buffers)
+(global-set-key (kbd "C-x C-b") 'ido-switch-buffer)
+(global-set-key (kbd "C-x M d") 'mc/mark-all-dwim) ;d for dwim
+(global-set-key (kbd "C-x M l") 'mc/mark-next-lines) ;l for lines
+(global-set-key (kbd "C-x M a") 'mc/mark-all-like-this) ;a for all
+(global-set-key (kbd "C-x M n") 'mc/mark-next-like-this) ;n for next
+(global-set-key (kbd "C-x H a") 'helm-apropos)
 
 (defun backward-delete-word (arg)
   "Delete characters backward until encountering the beginning of a word.
@@ -138,12 +150,12 @@ With argument ARG, do this that many times."
       ns-function-modifier 'control)
 (setenv "PATH" (concat (getenv "PATH") ":/Library/TeX/texbin"))
 
-(setq ispell-program-name "/usr/local/bin/ispell")
+(setq ispell-program-name "/usr/local/bin/aspell")
 (setq inferior-R-program-name "/usr/local/bin/R")
 (setq erc-nick "NuclearKev")
 
 ;;; Set up to use melpa packages
-;;; You may need to comment this out to get certain packaes (like ace-window)
+;;; You may need to comment this out to get certain packages (like ace-window)
 (when (>= emacs-major-version 24)
   (require 'package)
   (add-to-list
@@ -165,7 +177,9 @@ With argument ARG, do this that many times."
  '(custom-enabled-themes (quote (ample)))
  '(custom-safe-themes
 	 (quote
-		("a6a1a927cf30109204faf4484280fbc7084fab09c20de69502f312328e7aa318" default))))
+		("f5ac3063910add9b36e68168ee940cdcf904d9bf2cf24b76f424beff3556cea4" "a6a1a927cf30109204faf4484280fbc7084fab09c20de69502f312328e7aa318" default)))
+ '(max-lisp-eval-depth 600)
+ '(org-todo-keywords (quote ((sequence "TODO" "CURRENT" "CANCELED" "DONE")))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
