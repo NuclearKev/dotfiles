@@ -6,20 +6,28 @@
 (column-number-mode t)
 (line-number-mode -1)
 (display-time-mode t)
+(display-battery-mode t)
 (fringe-mode 1)   ; Shrink fringes to 1 pixel
-(set-face-attribute 'default nil :height 160)
+(set-face-attribute 'default nil :height 120)
+(set-default-font "DejaVu Sans Mono")
 (global-hl-line-mode t)
-(set-face-background hl-line-face "#3C3C3C")
+;; (set-face-background 'hl-line "#")      ; this wasn't working?
 (ido-mode 1)
 (setf ido-enable-flex-matching t)				;makes switches stuff easier
 (setq-default tab-width 2)
 (global-auto-revert-mode t)
 (setq confirm-kill-emacs #'y-or-n-p)	;Asks if you wish to leave emacs
 (setq org-src-fontify-natively t)	;syntax highlighting in org-mode source blocks
+(setq browse-url-browser-function 'eww-browse-url)
+(setq visible-bell 1)
 
-(set-fontset-font												;for emojis
- t 'symbol
- (font-spec :family "Apple Color Emoji") nil 'prepend)
+;; For some reason I think this loads images faster
+(setq imagemagick-enabled-types t)
+
+(add-to-list 'load-path "/home/kdb/.emacs.d/elpa/emms-20160801.1349/")
+(require 'emms-setup)
+(emms-all)
+(emms-default-players)
 
 ;; Removes trailing whitespace before saving.
 (add-hook 'before-save-hook (lambda ()
@@ -84,7 +92,12 @@
 (add-hook 'R-mode-hook
 					'(lambda () (local-set-key (kbd "M-RET") 'comment-indent-new-line)))
 
+;; Make backtab go backwards for links, like any normal person would want it
+(add-hook 'eww-mode-hook
+					'(lambda () (local-set-key (kbd "<backtab>") 'shr-previous-link)))
+
 ;; Personal Keybindings
+(global-set-key (kbd "C-x o") 'ace-window)
 (global-set-key (kbd "M-C c") 'comment-region)
 (global-set-key (kbd "M-C C") 'capitalize-word)
 (global-set-key (kbd "M-C u") 'uncomment-region)
@@ -96,13 +109,20 @@
 (global-set-key (kbd "M-g w") 'avy-goto-word-1)
 (global-set-key (kbd "M-g M-w") 'avy-goto-word-1)
 (global-set-key (kbd "M-G G") 'magit-status)
-(global-set-key (kbd "C-|") 'pop-global-mark) ;return to last cursor position
+;; (global-set-key (kbd "C-|") 'pop-global-mark) ;return to last cursor position
 (global-set-key (kbd "C-x B") 'list-buffers)
 (global-set-key (kbd "C-x C-b") 'ido-switch-buffer)
+
+;; C-x M for Multicursor or Music (for emms controls)
+;; Notice for the music controls, previous and next are upper case!
 (global-set-key (kbd "C-x M d") 'mc/mark-all-dwim) ;d for dwim
 (global-set-key (kbd "C-x M l") 'mc/mark-next-lines) ;l for lines
 (global-set-key (kbd "C-x M a") 'mc/mark-all-like-this) ;a for all
 (global-set-key (kbd "C-x M n") 'mc/mark-next-like-this) ;n for next
+(global-set-key (kbd "C-x M p") 'emms-pause) ;p for pause
+(global-set-key (kbd "C-x M P") 'emms-previous) ;P for previous
+(global-set-key (kbd "C-x M N") 'emms-next) ;N for next
+(global-set-key (kbd "C-x M s") 'emms-show) ;s for show
 (global-set-key (kbd "C-x H a") 'helm-apropos)
 
 (defun backward-delete-word (arg)
@@ -144,14 +164,9 @@ With argument ARG, do this that many times."
 
 (global-set-key (kbd "C-x K") 'kill-and-delete-window)
 
-;; Mac only
-(setq mac-command-key-is-meta t
-      mac-command-modifier 'meta
-      ns-function-modifier 'control)
-(setenv "PATH" (concat (getenv "PATH") ":/Library/TeX/texbin"))
-
-(setq ispell-program-name "/usr/local/bin/aspell")
-(setq inferior-R-program-name "/usr/local/bin/R")
+;;; Others
+(setq ispell-program-name "/usr/bin/aspell")
+(setq inferior-R-program-name "/usr/bin/R")
 (setq erc-nick "NuclearKev")
 
 ;;; Set up to use melpa packages
@@ -169,6 +184,29 @@ With argument ARG, do this that many times."
 (setq slime-contribs '(slime-fancy))
 ;;(slime-setup '(slime-company))
 ;;(global-company-mode)
+
+;; Twittering-mode
+(setq twittering-use-master-password t) ;allows me to automatically login to my twitter account
+(setq twittering-icon-mode t)		;gimme pictures
+
+;; eshell
+(require 'em-tramp)
+(setq eshell-prefer-lisp-functions t)
+(setq eshell-prefer-lisp-variables t)
+(setq password-cache t) ; enable password caching
+(setq password-cache-expiry 300) ; for 5 minutes (time in secs)
+
+;; jul-mode stuff
+(add-to-list 'load-path "~/jul-mode")
+(load "jul-mode.el")
+
+;; Enable pdf-tools all day
+(pdf-tools-install)
+
+;; elscreen start
+(elscreen-start)
+(elscreen-set-prefix-key "\C-t")
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -177,12 +215,13 @@ With argument ARG, do this that many times."
  '(custom-enabled-themes (quote (ample)))
  '(custom-safe-themes
 	 (quote
-		("f5ac3063910add9b36e68168ee940cdcf904d9bf2cf24b76f424beff3556cea4" "a6a1a927cf30109204faf4484280fbc7084fab09c20de69502f312328e7aa318" default)))
- '(max-lisp-eval-depth 600)
- '(org-todo-keywords (quote ((sequence "TODO" "CURRENT" "CANCELED" "DONE")))))
+		("366f94b5c9428b25dbc2ed7f80cd96314b7124acab404e30d201ebe9aac0ff9d" default)))
+ '(eww-download-directory "~/packages")
+ '(notmuch-init-file "~/.notmuch-config")
+ '(send-mail-function (quote smtpmail-send-it)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(hl-line ((t (:background "#343333")))))
