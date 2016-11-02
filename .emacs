@@ -30,6 +30,7 @@
    kept-old-versions 2
    version-control t)       ; use versioned backups
 
+;; MEPLA setup
 (when (>= emacs-major-version 24)
   (require 'package)
   (add-to-list
@@ -42,14 +43,21 @@
 (setq imagemagick-enabled-types t)
 
 ;; EMMS setup
-(add-to-list 'load-path "/home/kdb/.emacs.d/elpa/emms-20160801.1349/")
+(add-to-list 'load-path "/home/kdb/.emacs.d/elpa/emms-*.*/")
 (require 'emms-setup)
-(emms-minimalistic)
-(emms-default-players)
+(emms-minimalistic)											;I like things minimal
+;; (emms-default-players)
 ;; I want to use mpv!
 (require 'emms-player-mpv)
 (add-to-list 'emms-player-list 'emms-player-mpv)
-
+;; Show me info in the mode-line
+(require 'emms-mode-line)
+;; (emms-mode-line 1)
+;; Show me the playing time
+(require 'emms-playing-time)
+(emms-playing-time 1)
+'(emms-mode-line-format "")							;Don't show me the file name
+'(emms-playing-time-style (quote time))	;make it show the time
 
 ;; Removes trailing whitespace before saving.
 (add-hook 'before-save-hook (lambda ()
@@ -272,9 +280,9 @@ With argument ARG, do this that many times."
  '(org-agenda-files (quote ("~/org/Schedule.org")))
  '(package-selected-packages
 	 (quote
-		(emms-player-mpv-jp-radios emms-player-mpv emms image+ twittering-mode pdf-tools nlinum multiple-cursors mic-paren magit highlight-parentheses helm flycheck fill-column-indicator column-enforce-mode auto-complete ample-theme ace-window)))
+		(emms-player-mpv emms image+ twittering-mode pdf-tools nlinum multiple-cursors mic-paren magit highlight-parentheses helm flycheck fill-column-indicator column-enforce-mode auto-complete ample-theme ace-window)))
  '(send-mail-function (quote smtpmail-send-it))
- '(tramp-histfile-override "$HOME/.tramp_history"))
+ '(tramp-histfile-override ""))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
