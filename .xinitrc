@@ -1,6 +1,11 @@
 #Old StumpWM startup
 #exec sbcl --load ~/startstump
 
+#DWM startup
+#exec dwm
+# or
+#exec /path/to/dwm
+
 # You may need to comment out the next line to disable access control
 xhost +
 
