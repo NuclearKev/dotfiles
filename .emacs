@@ -21,6 +21,9 @@
 (setq org-src-fontify-natively t)	;syntax highlighting in org-mode source blocks
 (setq browse-url-browser-function 'eww-browse-url)
 (setq visible-bell 1)
+(setq fill-column 80)
+
+(add-hook 'after-init-hook #'global-emojify-mode) ;gimme emojis EVERYWHERE! 🖕
 
 (setq backup-by-copying t      ; don't clobber symlinks
    backup-directory-alist
@@ -70,50 +73,46 @@
 (setq fci-rule-column 80)
 
 ;; Enable some good modes when editing source files
-(add-hook 'prog-mode-hook 'column-enforce-mode)
-(add-hook 'prog-mode-hook 'nlinum-mode)
-(add-hook 'prog-mode-hook 'auto-complete-mode)
-(add-hook 'prog-mode-hook 'fci-mode)
-(add-hook 'prog-mode-hook 'flycheck-mode)
-(add-hook 'prog-mode-hook 'paren-activate)
+(add-hook 'prog-mode-hook
+					(lambda ()
+						(column-enforce-mode 1)
+						(nlinum-mode 1)
+						(auto-complete-mode 1)
+						(fci-mode 1)
+						(flycheck-mode 1)
+						(paren-activate)
+						(auto-fill-mode 1)))
 
 (add-hook 'image-mode-hook 'imagex-sticky-mode)
 
 ;; Lets not forget the text modes!
 (add-hook 'text-mode-hook
-					'(lambda () (fci-mode t)))
-(add-hook 'latex-mode-hook
-					'(lambda () (fci-mode t)))
-(add-hook 'markdown-mode-hook
-					'(lambda () (fci-mode t)))
-(add-hook 'text-mode-hook
-					'(lambda () (nlinum-mode t)))
-(add-hook 'latex-mode-hook
-					'(lambda () (nlinum-mode t)))
-(add-hook 'markdown-mode-hook
-					'(lambda () (nlinum-mode t)))
-(add-hook 'latex-mode-hook
-					'(lambda () (column-enforce-mode t)))
-(add-hook 'latex-mode-hook
-					'(lambda () (flycheck-mode t)))
+					(lambda ()
+						(column-enforce-mode 1)
+						(nlinum-mode 1)
+						(auto-fill-mode 1)
+						(flyspell-mode 1)))
 
-;; Start flyspell for text, latex, erc, and org modes
-(add-hook 'text-mode-hook
-					'(lambda () (flyspell-mode t)))
-(add-hook 'latex-mode-hook
-					'(lambda () (flyspell-mode t)))
-(add-hook 'erc-mode-hook
-					'(lambda () (flyspell-mode t)))
-(add-hook 'org-mode-hook
-					'(lambda () (flyspell-mode t)))
-(add-hook 'org-mode-hook
-					'(lambda () (fci-mode -1)))
 (add-hook 'markdown-mode-hook
-					'(lambda () (flyspell-mode t)))
+					(lambda ()
+						(column-enforce-mode 1)
+						(auto-fill-mode 1)
+						(nlinum-mode 1)
+						(flyspell-mode 1)))
 
-;; Give me notifications in IRC
+(add-hook 'latex-mode-hook
+					(lambda ()
+						(fci-mode 1)
+						(nlinum-mode 1)
+						(flycheck-mode 1)
+						(column-enforce-mode 1)
+						(auto-fill-mode 1)
+						(flyspell-mode 1)))
+
 (add-hook 'erc-mode-hook
-					'(lambda () (erc-notify-mode t)))
+					(lambda ()
+						(erc-notify-mode 1)
+						(flyspell-mode 1)))
 
 ;; Enable M-RET to add another comment line. This is mainly for typing long
 ;; explainations that take more than 1 line. For example, this comment...
@@ -277,10 +276,11 @@ With argument ARG, do this that many times."
 	 (quote
 		("9e6e8b2377c0a176f702934794a1e7b8909a46147790b52e1be94ac7bb0bf333" "93b3b86e65d36de17a7a9d45c8797ea1a1134a1f997824daf439ac0ae2f60426" "4ab95b35f7720043592b49d890003874aa1954a3cf299edde13657c6a9182d85" "e1876e272a7e7a82a6196818a5f50551910dbdffcba557de5cdb71c7307b1144" "7557aa0d3854c7e910121ba2ef94f4c4e70de7d32ddebb609719f545f7f7be0d" "0c9cd73bf12f4bea0009c9fe520d362180c1fcf72d7590b484c0f20e20d109dc" "366f94b5c9428b25dbc2ed7f80cd96314b7124acab404e30d201ebe9aac0ff9d" default)))
  '(eww-download-directory "~/Downloads")
+ '(fill-column 80)
  '(org-agenda-files (quote ("~/org/Schedule.org")))
  '(package-selected-packages
 	 (quote
-		(emms-player-mpv emms image+ twittering-mode pdf-tools nlinum multiple-cursors mic-paren magit highlight-parentheses helm flycheck fill-column-indicator column-enforce-mode auto-complete ample-theme ace-window)))
+		(emojify emms-player-mpv emms image+ twittering-mode pdf-tools nlinum multiple-cursors mic-paren magit highlight-parentheses helm flycheck fill-column-indicator column-enforce-mode auto-complete ample-theme ace-window)))
  '(send-mail-function (quote smtpmail-send-it))
  '(tramp-histfile-override ""))
 (custom-set-faces
