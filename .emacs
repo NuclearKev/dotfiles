@@ -1,3 +1,11 @@
+;;; .emacs --- Emacs customizations
+
+;;; Commentary:
+;;
+;; My Emacs customizations.  Is there more to say?
+
+;;; Code:
+
 ;; General Modifications
 (setq inhibit-splash-screen t)
 (menu-bar-mode -1)
@@ -40,6 +48,10 @@
    'package-archives
    '("melpa" . "http://melpa.org/packages/")
    t)
+	(add-to-list
+	 'package-archives
+	 '("org" . "http://orgmode.org/elpa/")
+	 t)
   (package-initialize))
 
 ;; For some reason I think this loads images faster
@@ -59,8 +71,8 @@
 ;; Show me the playing time
 (require 'emms-playing-time)
 (emms-playing-time 1)
-'(emms-mode-line-format "")							;Don't show me the file name
-'(emms-playing-time-style (quote time))	;make it show the time
+;; (setq emms-mode-line-format "")					;Don't show me the file name
+(setq emms-playing-time-style (quote time))	;make it show the time
 
 ;; Removes trailing whitespace before saving.
 (add-hook 'before-save-hook (lambda ()
@@ -131,7 +143,9 @@
 
 ;; Make backtab go backwards for links, like any normal person would want it
 (add-hook 'eww-mode-hook
-					'(lambda () (local-set-key (kbd "<backtab>") 'shr-previous-link)))
+					'(lambda ()
+						 (local-set-key (kbd "<backtab>") 'shr-previous-link)
+						 (local-set-key (kbd "&") 'eww-external-browser-seamonkey)))
 
 ;; Personal Keybindings
 (global-set-key (kbd "C-x o") 'ace-window)
@@ -255,13 +269,57 @@ With argument ARG, do this that many times."
 (setq eshell-prefer-lisp-variables t)
 (setq password-cache t) ; enable password caching
 (setq password-cache-expiry 300) ; for 5 minutes (time in secs)
+(setq tramp-histfile-override "/dev/null")
+
+(defun browse-url-seamonkey-new-tab (url &optional new-window)
+	;; new-window ignored
+	"Open URL in a new tab in Seamonkey."
+	(interactive (browse-url-interactive-arg "URL: "))
+	(unless
+			(string= ""
+							 (shell-command-to-string
+								(concat "seamonkey -remote 'openURL(" url ",new-tab)'")))
+		(message "Starting Seamonkey...")
+		(start-process (concat "seamonkey " url) nil "seamonkey" url)
+		(message "Starting Seamonkey...done")))
+
+(defun eww-external-browser-seamonkey (&optional url)
+	"Open *eww* webpage in external browser.  URL won't be used."
+	(interactive)
+	(eww-copy-page-url)
+	(browse-url-seamonkey-new-tab (car kill-ring)))
 
 ;; jul-mode stuff
 ;(add-to-list 'load-path "~/jul-mode")
 ;(load "jul-mode.el")
 
 ;; Enable pdf-tools all day
-;; (pdf-tools-install)
+(pdf-tools-install)
+
+(setq youtube-dl-dir "~/Downloads/") ;make sure to have the '/' at the end
+
+(defun youtube-dl-video (url)
+	"Easily download youtube videos in Emacs!
+
+Pass it the URL of the video you wish to download.  Then it will
+	place the full youtube-dl command in your kill ring.  Yank this
+	to an eshell buffer or something."
+	(interactive "sURL: ")
+	(kill-append (concat "youtube-dl --output " youtube-dl-dir
+											 "\%\(title\)s.\%\(ext\)s ")
+							 t))
+
+(defun youtube-dl-ogg (url)
+	"Easily download youtube videos in Emacs!
+
+Pass it the URL of the video you wish to convert to ogg and
+	download.  Then it will place the full youtube-dl command in
+	your kill ring.  Yank this to an eshell buffer or something."
+	(interactive "sURL: ")
+	(kill-append (concat "youtube-dl -x --audio-format vorbis "
+											 "--output " youtube-dl-dir
+											 "\%\(title\)s.\%\(ext\)s ")
+							 t))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -278,11 +336,13 @@ With argument ARG, do this that many times."
  '(eww-download-directory "~/Downloads")
  '(fill-column 80)
  '(org-agenda-files (quote ("~/org/Schedule.org")))
+ '(org-s5-theme-file nil)
  '(package-selected-packages
 	 (quote
-		(emojify emms-player-mpv emms image+ twittering-mode pdf-tools nlinum multiple-cursors mic-paren magit highlight-parentheses helm flycheck fill-column-indicator column-enforce-mode auto-complete ample-theme ace-window)))
+		(org-plus-contrib pdf-tools emojify emms-player-mpv emms image+ twittering-mode nlinum multiple-cursors mic-paren magit highlight-parentheses helm flycheck fill-column-indicator column-enforce-mode auto-complete ample-theme ace-window)))
  '(send-mail-function (quote smtpmail-send-it))
- '(tramp-histfile-override ""))
+ '(smtpmail-smtp-server "stmp.openmailbox.org" t)
+ '(smtpmail-smtp-service 25))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -290,3 +350,7 @@ With argument ARG, do this that many times."
  ;; If there is more than one, they won't work right.
  '(hl-line ((t (:background "#343333"))))
  '(region ((t (:background "#3C3C3C")))))
+
+(provide '.emacs)
+
+;;; .emacs ends here
