@@ -3,6 +3,30 @@
 ;;; Commentary:
 ;;
 ;; My Emacs customizations.  Is there more to say?
+;;
+;; Packges:
+;;
+;; ac-emoji
+;; ace-window
+;; ample-theme
+;; auto-complete
+;; column-enforce-mode
+;; emms
+;; emms-player
+;; emojify
+;; fill-column-indicator
+;; flycheck
+;; helm
+;; highlight-parentheses
+;; image+
+;; magit
+;; markdown-mode
+;; mic-paren
+;; multiple-cursors
+;; nlinum
+;; org-plus
+;; pdf-tools
+;; twittering-mode
 
 ;;; Code:
 
@@ -179,6 +203,13 @@
 (global-set-key (kbd "C-x M v") 'emms-playlist-mode-go) ;(v)iew playlist
 (global-set-key (kbd "C-x H a") 'helm-apropos)
 
+;; For easy emoji finding
+(global-set-key (kbd "C-x E a") 'emojify-apropos-emoji)
+
+;; Undo trees are amazing.
+;; (require 'undo-tree)
+;; (global-undo-tree-mode)
+
 (defun backward-delete-word-no-kill-ring (arg)
   "Delete characters backward until encountering the beginning of a word.
 With argument ARG, do this that many times."
@@ -332,17 +363,17 @@ Pass it the URL of the video you wish to convert to ogg and
  '(custom-enabled-themes (quote (ample)))
  '(custom-safe-themes
 	 (quote
-		("9e6e8b2377c0a176f702934794a1e7b8909a46147790b52e1be94ac7bb0bf333" "93b3b86e65d36de17a7a9d45c8797ea1a1134a1f997824daf439ac0ae2f60426" "4ab95b35f7720043592b49d890003874aa1954a3cf299edde13657c6a9182d85" "e1876e272a7e7a82a6196818a5f50551910dbdffcba557de5cdb71c7307b1144" "7557aa0d3854c7e910121ba2ef94f4c4e70de7d32ddebb609719f545f7f7be0d" "0c9cd73bf12f4bea0009c9fe520d362180c1fcf72d7590b484c0f20e20d109dc" "366f94b5c9428b25dbc2ed7f80cd96314b7124acab404e30d201ebe9aac0ff9d" default)))
+		("750153eac49be640ea0d01754b4178756129e8fc6cbfc75312b0f5a5c96e29bf" "990690b46d1d999ac9c92e0228fb362e5486a6c1e48325e19784ca75f0e5cc1d" "9e6e8b2377c0a176f702934794a1e7b8909a46147790b52e1be94ac7bb0bf333" "93b3b86e65d36de17a7a9d45c8797ea1a1134a1f997824daf439ac0ae2f60426" "4ab95b35f7720043592b49d890003874aa1954a3cf299edde13657c6a9182d85" "e1876e272a7e7a82a6196818a5f50551910dbdffcba557de5cdb71c7307b1144" "7557aa0d3854c7e910121ba2ef94f4c4e70de7d32ddebb609719f545f7f7be0d" "0c9cd73bf12f4bea0009c9fe520d362180c1fcf72d7590b484c0f20e20d109dc" "366f94b5c9428b25dbc2ed7f80cd96314b7124acab404e30d201ebe9aac0ff9d" default)))
  '(eww-download-directory "~/Downloads")
  '(fill-column 80)
  '(org-agenda-files (quote ("~/org/Schedule.org")))
  '(org-s5-theme-file nil)
  '(package-selected-packages
 	 (quote
-		(org-plus-contrib pdf-tools emojify emms-player-mpv emms image+ twittering-mode nlinum multiple-cursors mic-paren magit highlight-parentheses helm flycheck fill-column-indicator column-enforce-mode auto-complete ample-theme ace-window)))
+		(ac-emoji markdown-mode org-plus-contrib pdf-tools emojify emms-player-mpv emms image+ twittering-mode nlinum multiple-cursors mic-paren magit highlight-parentheses helm flycheck fill-column-indicator column-enforce-mode auto-complete ample-theme ace-window)))
  '(send-mail-function (quote smtpmail-send-it))
  '(smtpmail-smtp-server "stmp.openmailbox.org" t)
- '(smtpmail-smtp-service 25))
+ '(smtpmail-smtp-service 25 t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
