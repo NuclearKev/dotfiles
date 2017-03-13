@@ -1,30 +1,45 @@
 (in-package :stumpwm)
 
 ;;; Allows for live editing using Emacs and Slime
-(require :swank)
-(swank-loader:init)
-(swank:create-server :port 4004
-		     :style swank:*communication-style*
-		     :dont-close t)
+;; (require :swank)
+;;(swank-loader:init)
+;;(swank:create-server :port 4004
+;;		     :style swank:*communication-style*
+;;		     :dont-close t)
+
+(defun check-battery ()
+	"Check the current battery percentage!  This is really only used on the C201
+	and it is to replace my Emacs battery function. :)"
+	(let* ((full-amount
+					(parse-integer
+					 (read-line
+						(open "/sys/class/power_supply/sbs-20-000b/charge_full"))))
+				 (current-amount
+					(parse-integer
+					 (read-line
+						(open "/sys/class/power_supply/sbs-20-000b/charge_now"))))
+				 (status
+					(read-line
+					 (open "/sys/class/power_supply/sbs-20-000b/status")))
+				 (percent
+					(* 100 (float (/ current-amount full-amount)))))
+		(format nil "~a%, ~a" percent status)))
+
+(defcommand battery-check () ()
+						(message "~a" (check-battery)))
+
+(stumpwm:set-prefix-key (stumpwm:kbd "C-z"))
 
 ;;; Keybindings
-(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "C-c") "exec rxvt")
-(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "c") "exec rxvt")
-(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "C-d") "exec dmenu_run -b")
-(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "d") "exec dmenu_run -b")
-(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "F") "move-focus right")
-(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "B") "move-focus left")
-(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "P") "move-focus up")
-(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "N") "move-focus down")
+(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "c") "exec ~/suckless/st-0.7/st")
+(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "d") "exec dmenu_run")
+(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "D") "exec dillo")
+(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "l") "move-focus right")
+(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "h") "move-focus left")
+(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "k") "move-focus up")
+(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "j") "move-focus down")
 (stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "L") "exec slock")
-
-;;; Tor-browser is sim-linked to the start-tor-browser executable in the /home/kevin/tor-browser directory
-(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "I") "exec tor-browser")
-
-;;; Start-up commands
-(stumpwm:run-commands
-	"grename main"
-	"gnew internet"
-	"gnew system"
-	"hsplit"
-	"exec xosview")
+(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "F") "fullscreen")
+(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "B") "battery-check")
+(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "t") "echo-date")
+(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "C-s") "exec scrot -s")
