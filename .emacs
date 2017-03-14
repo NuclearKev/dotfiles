@@ -16,6 +16,7 @@
 ;; emojify
 ;; fill-column-indicator
 ;; flycheck
+;; flx-ido
 ;; helm
 ;; highlight-parentheses
 ;; image+
@@ -26,6 +27,7 @@
 ;; nlinum
 ;; org-plus
 ;; pdf-tools
+;; projectile-mode
 ;; twittering-mode
 
 ;;; Code:
@@ -45,15 +47,24 @@
 ;; (set-face-attribute 'default nil :height 120)
 (global-hl-line-mode t)
 (set-face-background 'hl-line "#3C3C3C")      ; this wasn't working?
-(ido-mode 1)
-(setf ido-enable-flex-matching t)				;makes switches stuff easier
+;; (ido-mode 1)
+;; (setf ido-enable-flex-matching t)				;makes switches stuff easier
 (setq-default tab-width 2)
 (global-auto-revert-mode t)
 (setq confirm-kill-emacs #'y-or-n-p)	;Asks if you wish to leave emacs
-(setq org-src-fontify-natively t)	;syntax highlighting in org-mode source blocks
+(setq org-src-fontify-natively t)	;syntax highlighting in org-modesource blocks
 (setq browse-url-browser-function 'eww-browse-url)
 (setq visible-bell 1)
 (setq fill-column 80)
+
+;; Work
+;; You may need to get rid of the -default on the indent ones
+(setq-default js-indent-level 2)
+(setq-default js2-indent-level 2)
+(setq-default js2-basic-offset 2)
+(setq-default js2-strict-trailing-comma-warning nil) ;I don't care about commas
+(setq-default typescript-indent-level 2)
+(setq-default indent-tabs-mode nil)
 
 (add-hook 'after-init-hook #'global-emojify-mode) ;gimme emojis EVERYWHERE! 🖕
 
@@ -111,13 +122,20 @@
 ;; Enable some good modes when editing source files
 (add-hook 'prog-mode-hook
 					(lambda ()
-						(column-enforce-mode 1)
 						(nlinum-mode 1)
 						(auto-complete-mode 1)
 						(fci-mode 1)
 						(flycheck-mode 1)
-						(paren-activate)
-						(auto-fill-mode 1)))
+						(paren-activate)))
+
+(add-hook 'html-mode-hook
+					(lambda ()
+						(nlinum-mode 1)
+						(auto-complete-mode 1)
+						(fci-mode 1)
+						(flycheck-mode 1)
+            (flyspell-mode -1)
+						(paren-activate)))
 
 (add-hook 'image-mode-hook 'imagex-sticky-mode)
 
@@ -187,6 +205,7 @@
 ;; (global-set-key (kbd "C-|") 'pop-global-mark) ;return to last cursor position
 (global-set-key (kbd "C-x B") 'list-buffers)
 (global-set-key (kbd "C-x C-b") 'ido-switch-buffer)
+(global-set-key (kbd "C-x p f") 'projectile-find-file)
 
 ;; C-x M for Multicursor or Music (for emms controls)
 ;; Notice for the music controls, previous and next are upper case!
@@ -206,9 +225,16 @@
 ;; For easy emoji finding
 (global-set-key (kbd "C-x E a") 'emojify-apropos-emoji)
 
+;; Comment line. Only useful on Emacs version < 25
+(defun comment-line ()
+  "Comment or uncomment the current line.  Your cursor doesn't move."
+  (interactive)
+  (comment-or-uncomment-region (point-at-bol) (point-at-eol)))
+(global-set-key (kbd "C-x C-;") 'comment-line)
+
 ;; Undo trees are amazing.
-;; (require 'undo-tree)
-;; (global-undo-tree-mode)
+(require 'undo-tree)
+(global-undo-tree-mode)
 
 (defun backward-delete-word-no-kill-ring (arg)
   "Delete characters backward until encountering the beginning of a word.
@@ -278,14 +304,22 @@ With argument ARG, do this that many times."
 
 (global-set-key (kbd "M-<f1>") 'battery-level)
 
+(require 'flx-ido)
+(ido-mode 1)
+(ido-everywhere 1)
+(flx-ido-mode 1)
+;; disable ido faces to see flx highlights.
+(setq ido-enable-flex-matching t)
+;; (setq ido-use-faces nil)
+
 ;;; Others
 (setq ispell-program-name "/usr/bin/aspell")
 ;; (setq inferior-R-program-name "/usr/bin/R")
 (setq erc-nick "NuclearKev")
 
 ;;; Set Your lisp system and, optionally, some contribs
-;; (setq inferior-lisp-program "/usr/local/bin/sbcl")
-;; (setq slime-contribs '(slime-fancy))
+(setq inferior-lisp-program "/usr/bin/sbcl")
+(setq slime-contribs '(slime-fancy))
 ;;(slime-setup '(slime-company))
 ;;(global-company-mode)
 
@@ -327,7 +361,7 @@ With argument ARG, do this that many times."
 ;; Enable pdf-tools all day
 (pdf-tools-install)
 
-(setq youtube-dl-dir "~/Downloads/") ;make sure to have the '/' at the end
+(setq output-dir "~/Desktop/") ;make sure to have the '/' at the end
 
 (defun youtube-dl-video (url)
 	"Easily download youtube videos in Emacs!
@@ -336,7 +370,7 @@ Pass it the URL of the video you wish to download.  Then it will
 	place the full youtube-dl command in your kill ring.  Yank this
 	to an eshell buffer or something."
 	(interactive "sURL: ")
-	(kill-append (concat "youtube-dl --output " youtube-dl-dir
+	(kill-append (concat "youtube-dl --output " output-dir
 											 "\%\(title\)s.\%\(ext\)s ")
 							 t))
 
@@ -348,9 +382,53 @@ Pass it the URL of the video you wish to convert to ogg and
 	your kill ring.  Yank this to an eshell buffer or something."
 	(interactive "sURL: ")
 	(kill-append (concat "youtube-dl -x --audio-format vorbis "
-											 "--output " youtube-dl-dir
+											 "--output " output-dir
 											 "\%\(title\)s.\%\(ext\)s ")
 							 t))
+
+(defun screen-shot (delay-time)
+  "Easily take a screenshot your screen.
+DELAY-TIME will specify how long until the screenshot is taken."
+	(interactive "sDelay Time:")
+	(shell-command (concat "scrot -d " delay-time))
+	(shell-command (concat "mv *_scrot.png " output-dir)))
+
+(defun screen-select ()
+  "Easily take a screenshot of a cursor selected area."
+	(interactive)
+	(shell-command (concat "scrot -s"))
+	(shell-command (concat "mv *_scrot.png " output-dir)))
+
+(defun screen-record ()
+  "Easily record your screen!"
+  (interactive)
+  (async-shell-command (concat "avconv -f alsa -ac 1 -i hw:1 -f x11grab -r 25 "
+                               "-s 1920x1080 -i :0.0 -vcodec libx264 -threads 4 "
+                               output-dir "screen-capture.mkv")))
+
+;; Start projectile once everything is loaded
+(projectile-mode)
+
+;; IDK if this even works
+(require 'flycheck)
+(setq-default flycheck-disabled-checkers
+              (append flycheck-disabled-checkers
+                      '(javascript-jshint)))
+(flycheck-add-mode 'javascript-eslint 'web-mode)
+(flycheck-add-mode 'javascript-eslint 'typescript-mode)
+
+;; Temp fixes to auto-complete and fci-mode issue
+(defvar sanityinc/fci-mode-suppressed nil)
+(defadvice popup-create (before suppress-fci-mode activate)
+  "Suspend fci-mode while popups are visible"
+  (set (make-local-variable 'sanityinc/fci-mode-suppressed) fci-mode)
+  (when fci-mode
+    (turn-off-fci-mode)))
+(defadvice popup-delete (after restore-fci-mode activate)
+  "Restore fci-mode when all popups have closed"
+  (when (and (not popup-instances) sanityinc/fci-mode-suppressed)
+    (setq sanityinc/fci-mode-suppressed nil)
+    (turn-on-fci-mode)))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -363,7 +441,7 @@ Pass it the URL of the video you wish to convert to ogg and
  '(custom-enabled-themes (quote (ample)))
  '(custom-safe-themes
 	 (quote
-		("750153eac49be640ea0d01754b4178756129e8fc6cbfc75312b0f5a5c96e29bf" "990690b46d1d999ac9c92e0228fb362e5486a6c1e48325e19784ca75f0e5cc1d" "9e6e8b2377c0a176f702934794a1e7b8909a46147790b52e1be94ac7bb0bf333" "93b3b86e65d36de17a7a9d45c8797ea1a1134a1f997824daf439ac0ae2f60426" "4ab95b35f7720043592b49d890003874aa1954a3cf299edde13657c6a9182d85" "e1876e272a7e7a82a6196818a5f50551910dbdffcba557de5cdb71c7307b1144" "7557aa0d3854c7e910121ba2ef94f4c4e70de7d32ddebb609719f545f7f7be0d" "0c9cd73bf12f4bea0009c9fe520d362180c1fcf72d7590b484c0f20e20d109dc" "366f94b5c9428b25dbc2ed7f80cd96314b7124acab404e30d201ebe9aac0ff9d" default)))
+		("938d8c186c4cb9ec4a8d8bc159285e0d0f07bad46edf20aa469a89d0d2a586ea" "750153eac49be640ea0d01754b4178756129e8fc6cbfc75312b0f5a5c96e29bf" "990690b46d1d999ac9c92e0228fb362e5486a6c1e48325e19784ca75f0e5cc1d" "9e6e8b2377c0a176f702934794a1e7b8909a46147790b52e1be94ac7bb0bf333" "93b3b86e65d36de17a7a9d45c8797ea1a1134a1f997824daf439ac0ae2f60426" "4ab95b35f7720043592b49d890003874aa1954a3cf299edde13657c6a9182d85" "e1876e272a7e7a82a6196818a5f50551910dbdffcba557de5cdb71c7307b1144" "7557aa0d3854c7e910121ba2ef94f4c4e70de7d32ddebb609719f545f7f7be0d" "0c9cd73bf12f4bea0009c9fe520d362180c1fcf72d7590b484c0f20e20d109dc" "366f94b5c9428b25dbc2ed7f80cd96314b7124acab404e30d201ebe9aac0ff9d" default)))
  '(eww-download-directory "~/Downloads")
  '(fill-column 80)
  '(org-agenda-files (quote ("~/org/Schedule.org")))
