@@ -7,6 +7,8 @@
 ;;		     :style swank:*communication-style*
 ;;		     :dont-close t)
 
+(defconstant *output-dir* "~/Desktop")
+
 (defun check-battery ()
 	"Check the current battery percentage!  This is really only used on the C201
 	and it is to replace my Emacs battery function. :)"
@@ -31,15 +33,31 @@
 (stumpwm:set-prefix-key (stumpwm:kbd "C-z"))
 
 ;;; Keybindings
-(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "c") "exec ~/suckless/st-0.7/st")
-(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "d") "exec dmenu_run")
-(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "D") "exec dillo")
-(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "l") "move-focus right")
-(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "h") "move-focus left")
-(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "k") "move-focus up")
-(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "j") "move-focus down")
-(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "L") "exec slock")
-(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "F") "fullscreen")
-(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "B") "battery-check")
-(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "t") "echo-date")
-(stumpwm:define-key stumpwm:*root-map* (stumpwm:kbd "C-s") "exec scrot -s")
+(stumpwm:define-key
+		stumpwm:*root-map* (stumpwm:kbd "c") "exec ~/suckless/st-0.7/st")
+(stumpwm:define-key
+		stumpwm:*root-map* (stumpwm:kbd "d") "exec dmenu_run")
+(stumpwm:define-key
+		stumpwm:*root-map* (stumpwm:kbd "D") "exec dillo")
+(stumpwm:define-key
+		stumpwm:*root-map* (stumpwm:kbd "l") "move-focus right")
+(stumpwm:define-key
+		stumpwm:*root-map* (stumpwm:kbd "h") "move-focus left")
+(stumpwm:define-key
+		stumpwm:*root-map* (stumpwm:kbd "k") "move-focus up")
+(stumpwm:define-key
+		stumpwm:*root-map* (stumpwm:kbd "j") "move-focus down")
+(stumpwm:define-key
+		stumpwm:*root-map* (stumpwm:kbd "L") "exec slock")
+(stumpwm:define-key
+		stumpwm:*root-map* (stumpwm:kbd "F") "fullscreen")
+(stumpwm:define-key
+		stumpwm:*root-map* (stumpwm:kbd "B") "battery-check")
+(stumpwm:define-key
+		stumpwm:*root-map* (stumpwm:kbd "t") "echo-date")
+(stumpwm:define-key
+		stumpwm:*root-map* (stumpwm:kbd "C-s")
+	(format nil "exec scrot -se 'mv $f ~a'" *output-dir*))
+(stumpwm:define-key
+		stumpwm:*root-map* (stumpwm:kbd "M-s")
+	(format nil "exec scrot -e 'mv $f ~a'" *output-dir*))
