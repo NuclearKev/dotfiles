@@ -10,11 +10,9 @@
 ;; ace-window
 ;; ample-theme
 ;; auto-complete
-;; column-enforce-mode
 ;; emms
 ;; emms-player
 ;; emojify
-;; fill-column-indicator
 ;; flycheck
 ;; flx-ido
 ;; helm
@@ -40,13 +38,14 @@
 ;;(global-linum-mode t)
 (column-number-mode t)
 (line-number-mode -1)
-(set-frame-font "DejaVu Sans Mono")
+;;(set-frame-font "DejaVu Sans Mono")
 (display-time-mode t)
 ;; (display-battery-mode t)
 (fringe-mode 1)   ; Shrink fringes to 1 pixel
 ;; (set-face-attribute 'default nil :height 120)
 (global-hl-line-mode t)
-(set-face-background 'hl-line "#3C3C3C")      ; this wasn't working?
+;; (set-face-background 'hl-line "#3C3C3C")      ; for ample-theme
+;; (set-face-background 'hl-line "#f3f3fc") ;for plan9 theme
 ;; (ido-mode 1)
 ;; (setf ido-enable-flex-matching t)				;makes switches stuff easier
 (setq-default tab-width 2)
@@ -57,6 +56,7 @@
 (setq visible-bell 1)
 (setq fill-column 80)
 
+
 ;; Work
 ;; You may need to get rid of the -default on the indent ones
 (setq-default js-indent-level 2)
@@ -65,6 +65,7 @@
 (setq-default js2-strict-trailing-comma-warning nil) ;I don't care about commas
 (setq-default typescript-indent-level 2)
 (setq-default indent-tabs-mode nil)
+(setq-default jsx-indent-level 2)
 
 (add-hook 'after-init-hook #'global-emojify-mode) ;gimme emojis EVERYWHERE! 🖕
 
@@ -92,23 +93,6 @@
 ;; For some reason I think this loads images faster
 (setq imagemagick-enabled-types t)
 
-;; EMMS setup
-(add-to-list 'load-path "/home/kdb/.emacs.d/elpa/emms-*.*/")
-(require 'emms-setup)
-(emms-minimalistic)											;I like things minimal
-;; (emms-default-players)
-;; I want to use mpv!
-(require 'emms-player-mpv)
-(add-to-list 'emms-player-list 'emms-player-mpv)
-;; Show me info in the mode-line
-(require 'emms-mode-line)
-;; (emms-mode-line 1)
-;; Show me the playing time
-(require 'emms-playing-time)
-(emms-playing-time 1)
-;; (setq emms-mode-line-format "")					;Don't show me the file name
-(setq emms-playing-time-style (quote time))	;make it show the time
-
 ;; Removes trailing whitespace before saving.
 (add-hook 'before-save-hook (lambda ()
 			      (delete-trailing-whitespace)))
@@ -124,7 +108,7 @@
 					(lambda ()
 						(nlinum-mode 1)
 						(auto-complete-mode 1)
-						(fci-mode 1)
+						;; (fci-mode 1)
 						(flycheck-mode 1)
 						(paren-activate)))
 
@@ -132,7 +116,7 @@
 					(lambda ()
 						(nlinum-mode 1)
 						(auto-complete-mode 1)
-						(fci-mode 1)
+						;; (fci-mode 1)
 						(flycheck-mode 1)
             (flyspell-mode -1)
 						(paren-activate)))
@@ -142,17 +126,32 @@
 ;; Lets not forget the text modes!
 (add-hook 'text-mode-hook
 					(lambda ()
-						(column-enforce-mode 1)
+						;; (column-enforce-mode 1)
 						(nlinum-mode 1)
 						(auto-fill-mode 1)
 						(flyspell-mode 1)))
 
 (add-hook 'markdown-mode-hook
 					(lambda ()
-						(column-enforce-mode 1)
+						;; (column-enforce-mode 1)
 						(auto-fill-mode 1)
 						(nlinum-mode 1)
 						(flyspell-mode 1)))
+
+(defun org-table-copy-down-no-inc (&optional arg)
+  "Copy the previous cell's value without incrementing.
+ARG is needed for `kill-word'."
+  (interactive "p")
+  (kill-word arg)
+  (yank)
+  (org-return)
+  (org-table-blank-field)
+  (yank)
+  (org-table-align))
+
+(add-hook ' org-mode-hook
+            (lambda ()
+              (local-set-key (kbd "C-S-<down>") 'org-table-copy-down-no-inc)))
 
 (add-hook 'latex-mode-hook
 					(lambda ()
@@ -206,6 +205,7 @@
 (global-set-key (kbd "C-x B") 'list-buffers)
 (global-set-key (kbd "C-x C-b") 'ido-switch-buffer)
 (global-set-key (kbd "C-x p f") 'projectile-find-file)
+(global-set-key (kbd "C-z") ())         ;set to `suspend-frame' if you want that back :)
 
 ;; C-x M for Multicursor or Music (for emms controls)
 ;; Notice for the music controls, previous and next are upper case!
@@ -232,10 +232,6 @@
   (comment-or-uncomment-region (point-at-bol) (point-at-eol)))
 (global-set-key (kbd "C-x C-;") 'comment-line)
 
-;; Undo trees are amazing.
-(require 'undo-tree)
-(global-undo-tree-mode)
-
 (defun backward-delete-word-no-kill-ring (arg)
   "Delete characters backward until encountering the beginning of a word.
 With argument ARG, do this that many times."
@@ -252,6 +248,17 @@ With argument ARG, do this that many times."
 (global-set-key (kbd "M-<backspace>") 'backward-delete-word-no-kill-ring)
 (global-set-key (kbd "M-D") 'kill-word)
 (global-set-key (kbd "M-S-<backspace>") 'backward-kill-word)
+;; To help with my right wrist
+(global-set-key (kbd "M-7") 'backward-delete-word-no-kill-ring)
+(global-set-key (kbd "C-7") 'backward-delete-char-untabify)
+(global-set-key (kbd "M-&") 'backward-kill-word)
+(global-set-key (kbd "M-N") 'newline)
+
+(require 'buffer-move)
+(global-set-key (kbd "<C-S-up>")     'buf-move-up)
+(global-set-key (kbd "<C-S-down>")   'buf-move-down)
+(global-set-key (kbd "<C-S-left>")   'buf-move-left)
+(global-set-key (kbd "<C-S-right>")  'buf-move-right)
 
 (defun vsplit-last-buffer ()
   (interactive)
@@ -276,6 +283,34 @@ With argument ARG, do this that many times."
 		(delete-window)))
 
 (global-set-key (kbd "C-x K") 'kill-and-delete-window)
+
+(require 'hydra)
+(defhydra hydra-movement (global-map "M-<SPC>")
+  "Movement/Delete"
+  ("j" backward-char)
+  ("k" next-line)
+  ("l" previous-line)
+  (";" forward-char)
+  ("J" backward-word)
+  (":" forward-word)
+  ("a" move-beginning-of-line)
+  ("e" move-end-of-line)
+  ("w" avy-goto-word-1)
+  ("c" avy-goto-char)
+  ("L" avy-goto-line)
+  ("d" delete-char)
+  ("M-d" forward-delete-word-no-kill-ring)
+  ("DEL" backward-delete-char-untabify)
+  ("M-DEL" backward-delete-word-no-kill-ring)
+  ("K" kill-line)
+  ("u" undo-tree-undo)
+  ("U" undo-tree-visualize)
+  ("C-<SPC>" set-mark-command)
+  ("C-x <SPC>" rectangle-mark-mode)
+  ("v" scroll-up-command)
+  ("V" scroll-down-command)
+  ("o" other-window)
+  ("q" nil "quit"))
 
 ;; Allows me to see the battery level and status on my Chromebook
 ;; Maybe one day I'll add it to the mode line
@@ -304,6 +339,9 @@ With argument ARG, do this that many times."
 
 (global-set-key (kbd "M-<f1>") 'battery-level)
 
+(require 'eyebrowse)
+(eyebrowse-mode t)
+
 (require 'flx-ido)
 (ido-mode 1)
 (ido-everywhere 1)
@@ -313,12 +351,15 @@ With argument ARG, do this that many times."
 ;; (setq ido-use-faces nil)
 
 ;;; Others
-(setq ispell-program-name "/usr/bin/aspell")
+(setq ispell-program-name "/usr/local/bin/aspell")
 ;; (setq inferior-R-program-name "/usr/bin/R")
-(setq erc-nick "NuclearKev")
+(setq erc-nick "nuclearkev")
 
 ;;; Set Your lisp system and, optionally, some contribs
-(setq inferior-lisp-program "/usr/bin/sbcl")
+(require 'slime-autoloads)
+(setq inferior-lisp-program "/usr/local/bin/sbcl")
+(require 'slime)
+(slime-setup)
 (setq slime-contribs '(slime-fancy))
 ;;(slime-setup '(slime-company))
 ;;(global-company-mode)
@@ -357,9 +398,6 @@ With argument ARG, do this that many times."
 ;; jul-mode stuff
 ;(add-to-list 'load-path "~/jul-mode")
 ;(load "jul-mode.el")
-
-;; Enable pdf-tools all day
-(pdf-tools-install)
 
 (setq output-dir "~/Desktop/") ;make sure to have the '/' at the end
 
@@ -408,27 +446,86 @@ DELAY-TIME will specify how long until the screenshot is taken."
 
 ;; Start projectile once everything is loaded
 (projectile-mode)
+(global-highlight-parentheses-mode t)
+(smartparens-global-mode t)
 
 ;; IDK if this even works
+;; use web-mode for .jsx files
+(setq flycheck-javascript-eslint-executable "/usr/local/bin/eslint")
+(add-to-list 'auto-mode-alist '("\\.jsx$" . web-mode))
+
+;; http://www.flycheck.org/manual/latest/index.html
 (require 'flycheck)
+
+;; turn on flychecking globally
+(add-hook 'after-init-hook #'global-flycheck-mode)
+
+;; disable jshint since we prefer eslint checking
 (setq-default flycheck-disabled-checkers
-              (append flycheck-disabled-checkers
-                      '(javascript-jshint)))
+  (append flycheck-disabled-checkers
+    '(javascript-jshint)))
+
+;; use eslint with web-mode for jsx files
 (flycheck-add-mode 'javascript-eslint 'web-mode)
-(flycheck-add-mode 'javascript-eslint 'typescript-mode)
+
+;; customize flycheck temp file prefix
+(setq-default flycheck-temp-prefix ".flycheck")
+
+;; disable json-jsonlist checking for json files
+(setq-default flycheck-disabled-checkers
+  (append flycheck-disabled-checkers
+    '(json-jsonlist)))
+
+;; https://github.com/purcell/exec-path-from-shell
+;; only need exec-path-from-shell on OSX
+;; this hopefully sets up path and other vars better
+(when (memq window-system '(mac ns))
+  (exec-path-from-shell-initialize))
 
 ;; Temp fixes to auto-complete and fci-mode issue
-(defvar sanityinc/fci-mode-suppressed nil)
-(defadvice popup-create (before suppress-fci-mode activate)
-  "Suspend fci-mode while popups are visible"
-  (set (make-local-variable 'sanityinc/fci-mode-suppressed) fci-mode)
-  (when fci-mode
-    (turn-off-fci-mode)))
-(defadvice popup-delete (after restore-fci-mode activate)
-  "Restore fci-mode when all popups have closed"
-  (when (and (not popup-instances) sanityinc/fci-mode-suppressed)
-    (setq sanityinc/fci-mode-suppressed nil)
-    (turn-on-fci-mode)))
+;; (defvar sanityinc/fci-mode-suppressed nil)
+;; (defadvice popup-create (before suppress-fci-mode activate)
+;;   "Suspend fci-mode while popups are visible"
+;;   (set (make-local-variable 'sanityinc/fci-mode-suppressed) fci-mode)
+;;   (when fci-mode
+;;     (turn-off-fci-mode)))
+;; (defadvice popup-delete (after restore-fci-mode activate)
+;;   "Restore fci-mode when all popups have closed"
+;;   (when (and (not popup-instances) sanityinc/fci-mode-suppressed)
+;;     (setq sanityinc/fci-mode-suppressed nil)
+;;     (turn-on-fci-mode)))
+
+;; Haskell
+(require 'haskell-interactive-mode)
+(require 'haskell-process)
+(add-hook 'haskell-mode-hook 'interactive-haskell-mode)
+
+;; (el-get-bundle slack)
+;; (use-package slack
+;;   :commands (slack-start)
+;;   :init
+;;   (setq slack-buffer-emojify t) ;; if you want to enable emoji, default nil
+;;   (setq slack-prefer-current-team t)
+;;   :config
+;;   (slack-register-team
+;;    :name "sked"
+;;    :default t
+;;    :client-id "57522817143.163641867380"
+;;    :client-secret "b8a838e03ffabc43b4dad802e77bfaad"))
+;;    ;; :token "aaaa-sssssssssss-88888888888-hhhhhhhhhhh-jjjjjjjjjj"
+;;    ;; :subscribed-channels '(test-rename rrrrr)))
+
+;; (use-package alert
+;;   :commands (alert)
+;;   :init
+;;   (setq alert-default-style 'notifier))
+
+;; For writing D&D
+(require 'darkroom)
+
+;; Undo trees are amazing.
+(require 'undo-tree)
+(global-undo-tree-mode)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -436,30 +533,39 @@ DELAY-TIME will specify how long until the screenshot is taken."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(ansi-color-names-vector
-	 ["#454545" "#cd5542" "#6aaf50" "#baba36" "#5180b3" "#ab75c3" "#68a5e9" "#bdbdb3"])
+   ["#454545" "#cd5542" "#6aaf50" "#baba36" "#5180b3" "#ab75c3" "#68a5e9" "#bdbdb3"])
  '(battery-status-function (quote battery-linux-sysfs))
- '(custom-enabled-themes (quote (ample)))
+ '(custom-enabled-themes (quote (solarized-dark)))
  '(custom-safe-themes
-	 (quote
-		("938d8c186c4cb9ec4a8d8bc159285e0d0f07bad46edf20aa469a89d0d2a586ea" "750153eac49be640ea0d01754b4178756129e8fc6cbfc75312b0f5a5c96e29bf" "990690b46d1d999ac9c92e0228fb362e5486a6c1e48325e19784ca75f0e5cc1d" "9e6e8b2377c0a176f702934794a1e7b8909a46147790b52e1be94ac7bb0bf333" "93b3b86e65d36de17a7a9d45c8797ea1a1134a1f997824daf439ac0ae2f60426" "4ab95b35f7720043592b49d890003874aa1954a3cf299edde13657c6a9182d85" "e1876e272a7e7a82a6196818a5f50551910dbdffcba557de5cdb71c7307b1144" "7557aa0d3854c7e910121ba2ef94f4c4e70de7d32ddebb609719f545f7f7be0d" "0c9cd73bf12f4bea0009c9fe520d362180c1fcf72d7590b484c0f20e20d109dc" "366f94b5c9428b25dbc2ed7f80cd96314b7124acab404e30d201ebe9aac0ff9d" default)))
+   (quote
+    ("8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" "a8245b7cc985a0610d71f9852e9f2767ad1b852c2bdea6f4aadc12cce9c4d6d0" "44c566df0e1dfddc60621711155b1be4665dd3520b290cb354f8270ca57f8788" "2cf7f9d1d8e4d735ba53facdc3c6f3271086b6906c4165b12e4fd8e3865469a6" "6de7c03d614033c0403657409313d5f01202361e35490a3404e33e46663c2596" "938d8c186c4cb9ec4a8d8bc159285e0d0f07bad46edf20aa469a89d0d2a586ea" "750153eac49be640ea0d01754b4178756129e8fc6cbfc75312b0f5a5c96e29bf" "990690b46d1d999ac9c92e0228fb362e5486a6c1e48325e19784ca75f0e5cc1d" "9e6e8b2377c0a176f702934794a1e7b8909a46147790b52e1be94ac7bb0bf333" "93b3b86e65d36de17a7a9d45c8797ea1a1134a1f997824daf439ac0ae2f60426" "4ab95b35f7720043592b49d890003874aa1954a3cf299edde13657c6a9182d85" "e1876e272a7e7a82a6196818a5f50551910dbdffcba557de5cdb71c7307b1144" "7557aa0d3854c7e910121ba2ef94f4c4e70de7d32ddebb609719f545f7f7be0d" "0c9cd73bf12f4bea0009c9fe520d362180c1fcf72d7590b484c0f20e20d109dc" "366f94b5c9428b25dbc2ed7f80cd96314b7124acab404e30d201ebe9aac0ff9d" default)))
  '(eww-download-directory "~/Downloads")
+ '(fci-rule-color "#f8fce8")
  '(fill-column 80)
+ '(hl-paren-background-colors (quote ("#e8fce8" "#c1e7f8" "#f8e8e8")))
+ '(hl-paren-colors (quote ("#40883f" "#0287c8" "#b85c57")))
  '(org-agenda-files (quote ("~/org/Schedule.org")))
  '(org-s5-theme-file nil)
  '(package-selected-packages
-	 (quote
-		(ac-emoji markdown-mode org-plus-contrib pdf-tools emojify emms-player-mpv emms image+ twittering-mode nlinum multiple-cursors mic-paren magit highlight-parentheses helm flycheck fill-column-indicator column-enforce-mode auto-complete ample-theme ace-window)))
+   (quote
+    (buffer-move string-inflection solarized-theme github-modern-theme nodejs-repl rjsx-mode jsx-mode omnisharp vue-html-mode vue-mode racket-mode exec-path-from-shell ## typescript-mode json-mode web-mode yasnippet avy plan9-theme ac-emoji markdown-mode org-plus-contrib pdf-tools emojify emms-player-mpv emms image+ twittering-mode nlinum multiple-cursors mic-paren magit highlight-parentheses helm flycheck fill-column-indicator column-enforce-mode auto-complete ample-theme ace-window)))
+ '(projectile-globally-ignored-directories
+   (quote
+    (".idea" ".ensime_cache" ".eunit" ".git" ".hg" ".fslckout" "_FOSSIL_" ".bzr" "_darcs" ".tox" ".svn" ".stack-work" "node_modules" "bower_components" "elm-stuff")))
  '(send-mail-function (quote smtpmail-send-it))
- '(smtpmail-smtp-server "stmp.openmailbox.org" t)
- '(smtpmail-smtp-service 25 t))
+ '(sml/active-background-color "#98ece8")
+ '(sml/active-foreground-color "#424242")
+ '(sml/inactive-background-color "#4fa8a8")
+ '(sml/inactive-foreground-color "#424242")
+ '(smtpmail-smtp-server "stmp.openmailbox.org")
+ '(smtpmail-smtp-service 25))
+
+(provide '.emacs)
+
+;;; .emacs ends here
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(hl-line ((t (:background "#343333"))))
- '(region ((t (:background "#3C3C3C")))))
-
-(provide '.emacs)
-
-;;; .emacs ends here
+ )
