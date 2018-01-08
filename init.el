@@ -13,7 +13,6 @@
 ;; emms
 ;; emms-player
 ;; emojify
-;; evil
 ;; flycheck
 ;; flx-ido
 ;; helm
@@ -22,6 +21,7 @@
 ;; magit
 ;; markdown-mode
 ;; mic-paren
+;; modalka-mode
 ;; multiple-cursors
 ;; nlinum
 ;; org-plus
@@ -40,7 +40,7 @@
 (run-with-idle-timer 5 t #'garbage-collect)
 
 ;;; Enable debug during loading.
-(setq debug-on-error t)
+;; (setq debug-on-error t)
 
 (defvar emacs-cache-folder "~/.cache/emacs/"
   "Cache folder is everything we do not want to track together
@@ -68,7 +68,7 @@
 (setq-default tab-width 2)
 (global-auto-revert-mode t)
 (setq confirm-kill-emacs #'y-or-n-p)	;Asks if you wish to leave emacs
-(setq org-src-fontify-natively t)	;syntax highlighting in org-modesource blocks
+(setq-default org-src-fontify-natively t)	;syntax highlighting in org-modesource blocks
 (setq browse-url-browser-function 'eww-browse-url)
 (setq visible-bell 1)
 (setq fill-column 80)
@@ -79,7 +79,29 @@
 ;;; it to 0 to deactivate.
 (setq show-paren-delay 0)
 (setq show-paren-when-point-inside-paren t)
+(setq-default ftp-program "sftp")
+(setq tls-checktrust t)
+(setq gnutls-verify-error t)
+(let ((trustfile "/etc/ssl/cert.pem"))
+  (setq tls-program
+        `(,(format  "gnutls-cli --x509cafile %s -p %%p %%h" trustfile)
+          ,(format "openssl s_client -connect %%h:%%p -CAfile %s -no_ssl2 -ign_eof" trustfile)))
+  (setq gnutls-trustfiles (list trustfile)))
 
+;; (let ((bad-hosts
+;;        (loop for bad
+;;              in `("https://wrong.host.badssl.com/"
+;;                   "https://self-signed.badssl.com/")
+;;              if (condition-case e
+;;                     (url-retrieve
+;;                      bad (lambda (retrieved) t))
+;;                   (error nil))
+;;              collect bad)))
+;;   (if bad-hosts
+;;       (error (format "tls misconfigured; retrieved %s ok"
+;;                      bad-hosts))
+;;     (url-retrieve "https://badssl.com"
+;;                   (lambda (retrieved) t))))
 
 ;; Work
 ;; You may need to get rid of the -default on the indent ones
@@ -90,6 +112,9 @@
 (setq-default typescript-indent-level 2)
 (setq-default indent-tabs-mode nil)
 (setq-default jsx-indent-level 2)
+(setq-default fsharp-indent-level 2)
+(setq-default fsharp-indent-offset 2)
+(setq-default fsharp-ac-intellisense-enabled nil)
 
 (add-hook 'after-init-hook #'global-emojify-mode) ;gimme emojis EVERYWHERE! 🖕
 
@@ -133,6 +158,7 @@
 						(nlinum-mode 1)
 						(auto-complete-mode 1)
 						;; (fci-mode 1)
+            (modalka-mode 1)
 						(flycheck-mode 1)))
 
 (add-hook 'html-mode-hook
@@ -140,6 +166,7 @@
 						(nlinum-mode 1)
 						(auto-complete-mode 1)
 						;; (fci-mode 1)
+            (modalka-mode 1)
 						(flycheck-mode 1)
             (flyspell-mode -1)))
 
@@ -150,6 +177,7 @@
 					(lambda ()
 						;; (column-enforce-mode 1)
 						(nlinum-mode 1)
+            (modalka-mode 1)
 						(auto-fill-mode 1)
 						(flyspell-mode 1)))
 
@@ -158,6 +186,7 @@
 						;; (column-enforce-mode 1)
 						(auto-fill-mode 1)
 						(nlinum-mode 1)
+            (modalka-mode 1)
 						(flyspell-mode 1)))
 
 (defun org-table-copy-down-no-inc (&optional arg)
@@ -222,6 +251,10 @@ ARG is needed for `kill-word'."
 (global-set-key (kbd "M-g M-t") 'avy-goto-char-2)
 (global-set-key (kbd "M-g l") 'avy-goto-char-in-line)
 (global-set-key (kbd "M-g M-l") 'avy-goto-char-in-line)
+(global-set-key (kbd "M-g c") 'iy-go-to-char)
+(global-set-key (kbd "M-g C") 'iy-go-to-char-backward)
+(global-set-key (kbd "M-g ;") 'iy-go-to-or-up-to-continue)
+(global-set-key (kbd "M-g :") 'iy-go-to-or-up-to-continue-backward)
 (global-set-key (kbd "M-g f") 'avy-goto-line)
 (global-set-key (kbd "M-g M-f") 'avy-goto-line)
 (global-set-key (kbd "M-g w") 'avy-goto-word-1)
@@ -315,12 +348,6 @@ With argument ARG, do this that many times."
 
 (global-set-key (kbd "C-x K") 'kill-and-delete-window)
 
-
-;; Evil bindings
-(global-set-key (kbd "M-<SPC>") 'evil-force-normal-state)
-(global-set-key (kbd "C-v") 'scroll-up-command)
-(global-set-key (kbd "M-v") 'scroll-down-command)
-
 ;; (require 'hydra)
 ;; (defhydra hydra-movement (global-map "M-<SPC>")
 ;;   "Movement/Delete"
@@ -401,9 +428,131 @@ With argument ARG, do this that many times."
 ;;(slime-setup '(slime-company))
 ;;(global-company-mode)
 
+(require 'fsharp-mode)
+(setq inferior-fsharp-program "/usr/local/bin/fsharpi --readline-")
+(setq fsharp-compiler "/usr/local/bin/fsharpc")
+
 ;; Twittering-mode
 (setq twittering-use-master-password t) ;allows me to automatically login to my twitter account
 (setq twittering-icon-mode t)		;gimme pictures
+
+
+(add-hook 'haskell-mode-hook
+					'(lambda ()
+						 (local-set-key (kbd "C-;") 'iy-go-to-char)))
+
+(modalka-mode 1)
+(add-to-list 'modalka-excluded-modes 'magit-status-mode)
+(global-set-key (kbd "<escape>") #'modalka-mode)
+;; (global-set-key (kbd "<escape>") #'modalka-global-mode)
+(define-key modalka-mode-map (kbd "0") #'digit-argument)
+(define-key modalka-mode-map (kbd "1") #'digit-argument)
+(define-key modalka-mode-map (kbd "2") #'digit-argument)
+(define-key modalka-mode-map (kbd "3") #'digit-argument)
+(define-key modalka-mode-map (kbd "4") #'digit-argument)
+(define-key modalka-mode-map (kbd "5") #'digit-argument)
+(define-key modalka-mode-map (kbd "6") #'digit-argument)
+(define-key modalka-mode-map (kbd "7") #'digit-argument)
+(define-key modalka-mode-map (kbd "8") #'digit-argument)
+(define-key modalka-mode-map (kbd "9") #'digit-argument)
+(modalka-define-kbd "a" "C-a")
+(define-key modalka-mode-map (kbd "b") #'backward-char)
+(modalka-define-kbd "c c" "C-c C-c")
+(modalka-define-kbd "c k" "C-c C-k")
+(modalka-define-kbd "c l" "C-c C-l")
+(modalka-define-kbd "c p" "C-c C-p")
+(modalka-define-kbd "c n" "C-c C-n")
+(modalka-define-kbd "c o" "C-c C-o")
+(modalka-define-kbd "c G" "C-c p s g")
+(define-key modalka-mode-map (kbd "d") #'delete-char)
+(modalka-define-kbd "e" "C-e")
+(define-key modalka-mode-map (kbd "f") #'forward-char)
+(modalka-define-kbd "g g" "M-g g")
+(modalka-define-kbd "g f" "M-g f")
+(modalka-define-kbd "g l" "M-g l")
+(modalka-define-kbd "g w" "M-g w")
+(define-key modalka-mode-map (kbd "h f") #'forward-word)
+(define-key modalka-mode-map (kbd "h b") #'backward-word)
+(modalka-define-kbd "h a" "M-a")
+(modalka-define-kbd "h e" "M-e")
+(modalka-define-kbd "h n" "M-n")
+(modalka-define-kbd "h p" "M-p")
+(define-key modalka-mode-map (kbd "h d") #'forward-delete-word-no-kill-ring)
+(define-key modalka-mode-map (kbd "h v") #'scroll-down-command)
+(modalka-define-kbd "h >" "M->")
+(modalka-define-kbd "h <" "M-<")
+(define-key modalka-mode-map (kbd "h w") #'kill-ring-save)
+(define-key modalka-mode-map (kbd "h <backspace>") #'backward-delete-word-no-kill-ring)
+(define-key modalka-mode-map (kbd "h z") #'zap-to-char)
+(define-key modalka-mode-map (kbd "h 4") #'ispell-word)
+(define-key modalka-mode-map (kbd "h 5") #'query-replace)
+(define-key modalka-mode-map (kbd "h C") #'capitalize-word)
+(define-key modalka-mode-map (kbd "h u") #'undo-tree-visualize)
+(define-key modalka-mode-map (kbd "h l") #'downcase-word)
+(define-key modalka-mode-map (kbd "h c") #'comment-region)
+(define-key modalka-mode-map (kbd "h u") #'uncomment-region)
+(define-key modalka-mode-map (kbd "h U") #'upcase-word)
+(define-key modalka-mode-map (kbd "h /") #'dabbrev-expand)
+(define-key modalka-mode-map (kbd "h /") #'dabbrev-expand)
+(modalka-define-kbd "h x" "M-x")
+(define-key modalka-mode-map (kbd "h t") #'transpose-words)
+(define-key modalka-mode-map (kbd "h \\") #'delete-horizontal-space)
+(define-key modalka-mode-map (kbd "\\") #'delete-horizontal-space)
+(define-key modalka-mode-map (kbd "h ;") #'comment-dwim)
+(modalka-define-kbd "i" "TAB")
+(modalka-define-kbd "j" "C-j")
+(define-key modalka-mode-map (kbd "k") #'kill-line)
+(define-key modalka-mode-map (kbd "l") #'recenter-top-bottom)
+(define-key modalka-mode-map (kbd "m") #'newline)
+(define-key modalka-mode-map (kbd "n") #'next-line)
+(define-key modalka-mode-map (kbd "o") #'open-line)
+(define-key modalka-mode-map (kbd "p") #'previous-line)
+(modalka-define-kbd "q" "C-q")
+(define-key modalka-mode-map (kbd "r") #'isearch-backward)
+(define-key modalka-mode-map (kbd "s") #'isearch-forward)
+(define-key modalka-mode-map (kbd "t") #'transpose-chars)
+(define-key modalka-mode-map (kbd "u") #'universal-argument)
+(define-key modalka-mode-map (kbd "v") #'scroll-up-command)
+(define-key modalka-mode-map (kbd "w") #'kill-region)
+(modalka-define-kbd "x 0" "C-x 0")
+(modalka-define-kbd "x 1" "C-x 1")
+(modalka-define-kbd "x 2" "C-x 2")
+(modalka-define-kbd "x 3" "C-x 3")
+(modalka-define-kbd "x x" "C-x C-x")
+(modalka-define-kbd "x f" "C-x C-f")
+(modalka-define-kbd "x ;" "C-x C-;")
+(modalka-define-kbd "x s" "C-x C-s")
+(modalka-define-kbd "x p f" "C-x p f")
+(modalka-define-kbd "x m d" "C-x M d")
+(modalka-define-kbd "x u" "C-x u")
+(modalka-define-kbd "x o" "C-x o")
+(modalka-define-kbd "x k" "C-x k")
+(modalka-define-kbd "x b" "C-x b")
+(modalka-define-kbd "x d" "C-x d")
+(modalka-define-kbd "x (" "C-x (")
+(modalka-define-kbd "x )" "C-x )")
+(modalka-define-kbd "x e" "C-x e")
+(define-key modalka-mode-map (kbd "x SPC") #'rectangle-mark-mode)
+(define-key modalka-mode-map (kbd "x *") #'calc)
+(define-key modalka-mode-map (kbd "x &") #'calendar-mode)
+(define-key modalka-mode-map (kbd "y") #'yank)
+(define-key modalka-mode-map (kbd "z") #'zap-to-char)
+(define-key modalka-mode-map (kbd "SPC") #'set-mark-command)
+(define-key modalka-mode-map (kbd "/") #'undo-tree-undo)
+(define-key modalka-mode-map (kbd "-") #'negative-argument)
+(define-key modalka-mode-map (kbd "H <SPC>") #'mark-sexp)
+(define-key modalka-mode-map (kbd "H f") #'forward-sexp)
+(define-key modalka-mode-map (kbd "H b") #'backward-sexp)
+(define-key modalka-mode-map (kbd "]") #'forward-sexp)
+(define-key modalka-mode-map (kbd "[") #'backward-sexp)
+(define-key modalka-mode-map (kbd ";") #'iy-go-to-char)
+(define-key modalka-mode-map (kbd ":") #'iy-go-to-char-backward)
+(define-key modalka-mode-map (kbd ">") #'iy-go-to-or-up-to-continue)
+(define-key modalka-mode-map (kbd "<") #'iy-go-to-or-up-to-continue-backward)
+(define-key modalka-mode-map (kbd ".") #'repeat)
+
+(setq-default cursor-type '(bar . 1))
+(setq modalka-cursor-type 'box)
 
 ;; eshell
 ;; Run "alias sudo 'eshell/sudo $*'" sudo to work right
@@ -576,20 +725,214 @@ DELAY-TIME will specify how long until the screenshot is taken."
 (require 'undo-tree)
 (global-undo-tree-mode)
 
+;; org-more site generation stuff
+(setq org-html-htmlize-output-type 'css)
+
+(setq my-html-preamble
+      "<header id=\"banner\">
+  <h1><a href=\"/home.html\">Kevin \"The Nuclear\" Bloom</a></h1>
+  <hr />
+  <nav><ul>
+    <li><a href=\"/contact.html\">Contact</a></li>
+    <li><a href=\"/blog/blog.html\">Blog</a></li>
+    <li><a href=\"/projects.html\">Projects</a></li>
+    <li><a href=\"/about-me.html\">About Me</a></li>
+  </ul></nav>
+</header>")
+
+(setq org-html-head
+      (with-temp-buffer
+        (let ((css-dir (file-name-as-directory "~/org-site/www/styles/"))
+              (css-files '("main.css")))
+          (insert "<style type=\"text/css\">\n")
+          (dolist (file css-files)
+            (insert-file-contents (concat css-dir file)))
+          (insert "</style>")
+          (buffer-string))))
+
+(setq my-blog-extra-head
+      (concat
+       "<link rel='stylesheet' href='/../styles/main.css' />"))
+
+(defun insert-css ()
+  "Insert CSS into the stylesheet."
+  (let* ((css-dir (expand-file-name (plist-get project-plist :publishing-directory)))
+         (css-files (directory-files css-dir t "^.*\\.css$")))
+    (dolist (file css-files)
+      (with-temp-buffer
+        (insert-file-contents file)
+        (write-file file)))))
+
+(defun my-blog-get-preview (file)
+  "The comments in FILE have to be on their own lines, prefereably before and after paragraphs.
+Written by Dennis Ogbe, modified by Kevin Bloom."
+  (with-temp-buffer
+    (insert-file-contents file)
+    (goto-char (point-min))
+    (let ((beg (+ 1 (re-search-forward "^#\\+BEGIN_PREVIEW$")))
+          (end (progn (re-search-forward "^#\\+END_PREVIEW$")
+                      (match-beginning 0))))
+      (buffer-substring beg end))))
+
+(defun my-blog-sitemap (project &optional sitemap-filename)
+  "Generate the sitemap for my blog. Written by Dennis Ogbe, modified by Kevin Bloom."
+  (let* ((project-plist (cdr project))
+         (dir (file-name-as-directory
+               (plist-get project-plist :base-directory)))
+         (localdir (file-name-directory dir))
+         (exclude-regexp (plist-get project-plist :exclude))
+         (files (nreverse
+                 (org-publish-get-base-files project exclude-regexp)))
+         (sitemap-filename (concat dir (or sitemap-filename "sitemap.org")))
+         (sitemap-sans-extension
+          (plist-get project-plist :sitemap-sans-extension))
+         (visiting (find-buffer-visiting sitemap-filename))
+         file sitemap-buffer)
+    (with-current-buffer
+        (let ((org-inhibit-startup t))
+          (setq sitemap-buffer
+                (or visiting (find-file sitemap-filename))))
+      (erase-buffer)
+      ;; loop through all of the files in the project
+      (while (setq file (pop files))
+        (let ((fn (file-name-nondirectory file))
+              (link ;; changed this to fix links. see postprocessor.
+               (file-relative-name file (file-name-as-directory
+                                         (expand-file-name (concat (file-name-as-directory dir) "..")))))
+              (oldlocal localdir))
+          (when sitemap-sans-extension
+            (setq link (file-name-sans-extension link)))
+          ;; sitemap shouldn't list itself
+          (unless (equal (file-truename sitemap-filename)
+                         (file-truename file))
+            (let (;; get the title and date of the current file
+                  (title (org-publish-format-file-entry "%t" file project-plist))
+                  (date (org-publish-format-file-entry "%d" file project-plist))
+                  ;; get the preview section from the current file
+                  (preview (my-blog-get-preview file))
+                  (regexp "\\(.*\\)\\[\\([^][]+\\)\\]\\(.*\\)"))
+              ;; insert a horizontal line before every post, kill the first one
+              ;; before saving
+              (insert "-----\n")
+              (let ((new-link (reduce (lambda (x y) (concat x "/" y)) (cdr (split-string link "/")))))
+                (cond ((string-match-p regexp title)
+                       (string-match regexp title)
+                       ;; insert every post as headline
+                       (insert (concat"* " (match-string 1 title)
+                                      "[[file:" new-link "]["
+                                      (match-string 2 title)
+                                      "]]" (match-string 3 title) "\n")))
+                      (t (insert (concat "* [[file:" new-link "][" title "]]\n"))))
+                ;; add properties for `ox-rss.el' here
+                (let ((rss-permalink (concat (file-name-sans-extension link) ".html"))
+                      (rss-pubdate (format-time-string
+                                    (car org-time-stamp-formats)
+                                    (org-publish-find-date file))))
+                  (org-set-property "RSS_PERMALINK" rss-permalink)
+                  (org-set-property "PUBDATE" rss-pubdate))
+                ;; insert the date, preview, & read more link
+                (insert (concat date "\n\n"))
+                (insert preview)
+                (insert (concat "[[file:" new-link "][Read More...]]\n")))))))
+      ;; kill the first hrule to make this look OK
+      (goto-char (point-min))
+      (let ((kill-whole-line t)) (kill-line))
+      (save-buffer))
+    (or visiting (kill-buffer sitemap-buffer))))
+
+(setq org-publish-project-alist
+      `(("site" :components ("main" "main-static" "blogs" "styles"))
+        ("main"
+         :base-directory "~/org-site/"
+         :base-extension "org"
+         :publishing-directory "~/org-site/www/"
+         :recursive t
+         :publishing-function org-html-publish-to-html
+         :headline-levels 4             ; Just the default for this project.
+         :section-numbers nil
+         :with-toc nil
+         :with-drawers t
+         :with-sub-superscript nil ;; important!!
+
+         :html-link-home "/"
+         :html-head nil ;; cleans up anything that would have been in there.
+         :html-head-extra ,my-blog-extra-head
+         :html-head-include-default-style nil
+         :html-head-include-scripts nil
+         :html-viewport nil
+         :html-home/up-format ""
+         :html-link-up ""
+         :html-link-home ""
+         ;; :auto-preamble t
+         :html-postamble nil
+         :html-preamble ,my-html-preamble
+         )
+        ("blogs"
+         :base-directory "~/org-site/blog"
+         :base-extension "org"
+         :publishing-directory "~/org-site/www/blog"
+         :recursive t
+         :publishing-function org-html-publish-to-html
+         :headline-levels 4             ; Just the default for this project.
+         :section-numbers nil
+         :with-toc nil
+         :with-drawers t
+         :with-sub-superscript nil ;; important!!
+
+         :html-link-home "/"
+         :html-head nil ;; cleans up anything that would have been in there.
+         :html-head-extra ,my-blog-extra-head
+         :html-head-include-default-style nil
+         :html-head-include-scripts nil
+         :html-viewport nil
+         :html-home/up-format ""
+         :html-link-up ""
+         :html-link-home ""
+         ;; :auto-preamble t
+         :html-postamble nil
+         :html-preamble ,my-html-preamble
+
+         ;; sitemap - list of blog articles
+         :auto-sitemap t
+         :sitemap-filename "blog.org"
+         :sitemap-title ""
+
+         :title "Blog Posts"
+         ;; custom sitemap generator function
+         :sitemap-function my-blog-sitemap
+         :sitemap-sort-files anti-chronologically
+         :sitemap-date-format "Published: %a %b %d %Y"
+         )
+        ("main-static"
+         :base-directory "~/org-site/"
+         :base-extension "css\\|js\\|png\\|jpg\\|gif\\|pdf\\|mp3\\|ogg\\|swf"
+         :publishing-directory "~/org-site/www/"
+         :recursive t
+         :publishing-function org-publish-attachment
+         )
+        ("styles"
+         :base-directory "~/org-site/styles"
+         :base-extension ".*"
+         :publishing-directory "~/org-site/www/styles/"
+         :publishing-function org-publish-attachment
+         ;; :completion-function insert-css
+         )
+        ))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(ansi-color-names-vector
-   ["#454545" "#cd5542" "#6aaf50" "#baba36" "#5180b3" "#ab75c3" "#68a5e9" "#bdbdb3"])
+   ["#073642" "#dc322f" "#859900" "#b58900" "#268bd2" "#d33682" "#2aa198" "#657b83"])
  '(battery-status-function (quote battery-linux-sysfs))
  '(custom-enabled-themes (quote (solarized-dark)))
  '(custom-safe-themes
    (quote
-    ("8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" "a8245b7cc985a0610d71f9852e9f2767ad1b852c2bdea6f4aadc12cce9c4d6d0" "44c566df0e1dfddc60621711155b1be4665dd3520b290cb354f8270ca57f8788" "2cf7f9d1d8e4d735ba53facdc3c6f3271086b6906c4165b12e4fd8e3865469a6" "6de7c03d614033c0403657409313d5f01202361e35490a3404e33e46663c2596" "938d8c186c4cb9ec4a8d8bc159285e0d0f07bad46edf20aa469a89d0d2a586ea" "750153eac49be640ea0d01754b4178756129e8fc6cbfc75312b0f5a5c96e29bf" "990690b46d1d999ac9c92e0228fb362e5486a6c1e48325e19784ca75f0e5cc1d" "9e6e8b2377c0a176f702934794a1e7b8909a46147790b52e1be94ac7bb0bf333" "93b3b86e65d36de17a7a9d45c8797ea1a1134a1f997824daf439ac0ae2f60426" "4ab95b35f7720043592b49d890003874aa1954a3cf299edde13657c6a9182d85" "e1876e272a7e7a82a6196818a5f50551910dbdffcba557de5cdb71c7307b1144" "7557aa0d3854c7e910121ba2ef94f4c4e70de7d32ddebb609719f545f7f7be0d" "0c9cd73bf12f4bea0009c9fe520d362180c1fcf72d7590b484c0f20e20d109dc" "366f94b5c9428b25dbc2ed7f80cd96314b7124acab404e30d201ebe9aac0ff9d" default)))
+    ("732b807b0543855541743429c9979ebfb363e27ec91e82f463c91e68c772f6e3" "a24c5b3c12d147da6cef80938dca1223b7c7f70f2f382b26308eba014dc4833a" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" "d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" "a8245b7cc985a0610d71f9852e9f2767ad1b852c2bdea6f4aadc12cce9c4d6d0" "44c566df0e1dfddc60621711155b1be4665dd3520b290cb354f8270ca57f8788" "2cf7f9d1d8e4d735ba53facdc3c6f3271086b6906c4165b12e4fd8e3865469a6" "6de7c03d614033c0403657409313d5f01202361e35490a3404e33e46663c2596" "938d8c186c4cb9ec4a8d8bc159285e0d0f07bad46edf20aa469a89d0d2a586ea" "750153eac49be640ea0d01754b4178756129e8fc6cbfc75312b0f5a5c96e29bf" "990690b46d1d999ac9c92e0228fb362e5486a6c1e48325e19784ca75f0e5cc1d" "9e6e8b2377c0a176f702934794a1e7b8909a46147790b52e1be94ac7bb0bf333" "93b3b86e65d36de17a7a9d45c8797ea1a1134a1f997824daf439ac0ae2f60426" "4ab95b35f7720043592b49d890003874aa1954a3cf299edde13657c6a9182d85" "e1876e272a7e7a82a6196818a5f50551910dbdffcba557de5cdb71c7307b1144" "7557aa0d3854c7e910121ba2ef94f4c4e70de7d32ddebb609719f545f7f7be0d" "0c9cd73bf12f4bea0009c9fe520d362180c1fcf72d7590b484c0f20e20d109dc" "366f94b5c9428b25dbc2ed7f80cd96314b7124acab404e30d201ebe9aac0ff9d" default)))
  '(eww-download-directory "~/Downloads")
- '(fci-rule-color "#f8fce8")
+ '(fci-rule-color "#073642")
  '(fill-column 80)
  '(hl-paren-background-colors (quote ("#e8fce8" "#c1e7f8" "#f8e8e8")))
  '(hl-paren-colors (quote ("#40883f" "#0287c8" "#b85c57")))
@@ -597,7 +940,7 @@ DELAY-TIME will specify how long until the screenshot is taken."
  '(org-s5-theme-file nil)
  '(package-selected-packages
    (quote
-    (geiser use-package buffer-move string-inflection solarized-theme github-modern-theme nodejs-repl rjsx-mode jsx-mode omnisharp vue-html-mode vue-mode racket-mode exec-path-from-shell ## typescript-mode json-mode web-mode yasnippet avy plan9-theme ac-emoji markdown-mode org-plus-contrib pdf-tools emojify emms-player-mpv emms image+ twittering-mode nlinum multiple-cursors mic-paren magit highlight-parentheses helm flycheck fill-column-indicator column-enforce-mode auto-complete ample-theme ace-window)))
+    (modalka iy-go-to-char material-theme fsharp-mode geiser use-package buffer-move string-inflection solarized-theme github-modern-theme nodejs-repl rjsx-mode jsx-mode omnisharp vue-html-mode vue-mode racket-mode exec-path-from-shell ## typescript-mode json-mode web-mode yasnippet avy plan9-theme ac-emoji markdown-mode org-plus-contrib pdf-tools emojify emms-player-mpv emms image+ twittering-mode nlinum multiple-cursors mic-paren magit highlight-parentheses helm flycheck fill-column-indicator column-enforce-mode auto-complete ample-theme ace-window)))
  '(projectile-globally-ignored-directories
    (quote
     (".idea" ".ensime_cache" ".eunit" ".git" ".hg" ".fslckout" "_FOSSIL_" ".bzr" "_darcs" ".tox" ".svn" ".stack-work" "node_modules" "bower_components" "elm-stuff")))
