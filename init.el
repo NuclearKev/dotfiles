@@ -80,28 +80,7 @@
 (setq show-paren-delay 0)
 (setq show-paren-when-point-inside-paren t)
 (setq-default ftp-program "sftp")
-(setq tls-checktrust t)
-(setq gnutls-verify-error t)
-(let ((trustfile "/etc/ssl/cert.pem"))
-  (setq tls-program
-        `(,(format  "gnutls-cli --x509cafile %s -p %%p %%h" trustfile)
-          ,(format "openssl s_client -connect %%h:%%p -CAfile %s -no_ssl2 -ign_eof" trustfile)))
-  (setq gnutls-trustfiles (list trustfile)))
-
-;; (let ((bad-hosts
-;;        (loop for bad
-;;              in `("https://wrong.host.badssl.com/"
-;;                   "https://self-signed.badssl.com/")
-;;              if (condition-case e
-;;                     (url-retrieve
-;;                      bad (lambda (retrieved) t))
-;;                   (error nil))
-;;              collect bad)))
-;;   (if bad-hosts
-;;       (error (format "tls misconfigured; retrieved %s ok"
-;;                      bad-hosts))
-;;     (url-retrieve "https://badssl.com"
-;;                   (lambda (retrieved) t))))
+(setq-default vs-display-status nil)
 
 ;; Work
 ;; You may need to get rid of the -default on the indent ones
@@ -129,14 +108,11 @@
 ;; MEPLA setup
 (when (>= emacs-major-version 24)
   (require 'package)
-  (add-to-list
-   'package-archives
-   '("melpa" . "http://melpa.org/packages/")
-   t)
-	(add-to-list
-	 'package-archives
-	 '("org" . "http://orgmode.org/elpa/")
-	 t)
+  (setq-default
+   package-archives
+   '(("gnu" . "https://elpa.gnu.org/packages/")
+     ("melpa" . "https://melpa.org/packages/")
+     ("org" . "https://orgmode.org/elpa/")))
   (package-initialize))
 
 ;; For some reason I think this loads images faster
@@ -464,7 +440,7 @@ With argument ARG, do this that many times."
 (modalka-define-kbd "c n" "C-c C-n")
 (modalka-define-kbd "c o" "C-c C-o")
 (modalka-define-kbd "c G" "C-c p s g")
-(define-key modalka-mode-map (kbd "d") #'delete-char)
+(modalka-define-kbd "d" "C-d")
 (modalka-define-kbd "e" "C-e")
 (define-key modalka-mode-map (kbd "f") #'forward-char)
 (modalka-define-kbd "g g" "M-g g")
@@ -532,6 +508,7 @@ With argument ARG, do this that many times."
 (modalka-define-kbd "x (" "C-x (")
 (modalka-define-kbd "x )" "C-x )")
 (modalka-define-kbd "x e" "C-x e")
+(modalka-define-kbd "x H a" "C-x H a")
 (define-key modalka-mode-map (kbd "x SPC") #'rectangle-mark-mode)
 (define-key modalka-mode-map (kbd "x *") #'calc)
 (define-key modalka-mode-map (kbd "x &") #'calendar-mode)
@@ -919,6 +896,29 @@ Written by Dennis Ogbe, modified by Kevin Bloom."
          )
         ))
 
+;; Package Safety
+(setq-default tls-checktrust t)
+(setq-default gnutls-verify-error t)
+(let ((trustfile "/etc/ssl/cert.pem"))
+  (setq-default tls-program
+        `(,(format  "gnutls-cli --x509cafile %s -p %%p %%h" trustfile)
+          ,(format "openssl s_client -connect %%h:%%p -CAfile %s -no_ssl2 -ign_eof" trustfile)))
+  (setq-default gnutls-trustfiles (list trustfile)))
+(let ((bad-hosts
+       (loop for bad
+             in `("https://wrong.host.badssl.com/"
+                  "https://self-signed.badssl.com/")
+             if (condition-case e
+                    (url-retrieve
+                     bad (lambda (retrieved) t))
+                  (error nil))
+             collect bad)))
+  (if bad-hosts
+      (error (format "tls misconfigured; retrieved %s ok"
+                     bad-hosts))
+    (url-retrieve "https://badssl.com"
+                  (lambda (retrieved) t))))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -940,7 +940,7 @@ Written by Dennis Ogbe, modified by Kevin Bloom."
  '(org-s5-theme-file nil)
  '(package-selected-packages
    (quote
-    (modalka iy-go-to-char material-theme fsharp-mode geiser use-package buffer-move string-inflection solarized-theme github-modern-theme nodejs-repl rjsx-mode jsx-mode omnisharp vue-html-mode vue-mode racket-mode exec-path-from-shell ## typescript-mode json-mode web-mode yasnippet avy plan9-theme ac-emoji markdown-mode org-plus-contrib pdf-tools emojify emms-player-mpv emms image+ twittering-mode nlinum multiple-cursors mic-paren magit highlight-parentheses helm flycheck fill-column-indicator column-enforce-mode auto-complete ample-theme ace-window)))
+    (2048-game modalka iy-go-to-char material-theme fsharp-mode geiser use-package buffer-move string-inflection solarized-theme github-modern-theme nodejs-repl rjsx-mode jsx-mode omnisharp racket-mode exec-path-from-shell ## typescript-mode json-mode web-mode yasnippet avy ac-emoji markdown-mode org-plus-contrib pdf-tools emojify emms-player-mpv emms image+ twittering-mode nlinum multiple-cursors mic-paren magit highlight-parentheses helm flycheck fill-column-indicator column-enforce-mode auto-complete ample-theme ace-window)))
  '(projectile-globally-ignored-directories
    (quote
     (".idea" ".ensime_cache" ".eunit" ".git" ".hg" ".fslckout" "_FOSSIL_" ".bzr" "_darcs" ".tox" ".svn" ".stack-work" "node_modules" "bower_components" "elm-stuff")))
