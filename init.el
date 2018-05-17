@@ -8,13 +8,11 @@
 ;;
 ;; ac-emoji
 ;; ace-window
-;; ample-theme
 ;; auto-complete
 ;; emms
 ;; emms-player
 ;; emojify
 ;; flycheck
-;; flx-ido
 ;; helm
 ;; highlight-parentheses
 ;; image+
@@ -25,7 +23,6 @@
 ;; multiple-cursors
 ;; nlinum
 ;; org-plus
-;; pdf-tools
 ;; projectile-mode
 
 ;;; Code:
@@ -55,8 +52,8 @@
 (tool-bar-mode -1)
 (scroll-bar-mode -1)
 ;;(global-linum-mode t)
-(column-number-mode t)
-(line-number-mode -1)
+(column-number-mode 1)
+;; (line-number-mode 1)
 ;;(set-frame-font "DejaVu Sans Mono")
 ;; (display-time-mode t)
 ;; (display-battery-mode t)
@@ -100,7 +97,7 @@
 (setq-default fsharp-indent-offset 2)
 (setq-default fsharp-ac-intellisense-enabled nil)
 
-(add-hook 'after-init-hook #'global-emojify-mode) ;gimme emojis EVERYWHERE! 🖕
+;; (add-hook 'after-init-hook #'global-emojify-mode) ;gimme emojis EVERYWHERE! 🖕
 
 (setq backup-by-copying t      ; don't clobber symlinks
    backup-directory-alist
@@ -142,7 +139,7 @@
 ;; Enable some good modes when editing source files
 (add-hook 'prog-mode-hook
 					(lambda ()
-						(nlinum-mode 1)
+						;; (nlinum-mode 1)
 						(auto-complete-mode 1)
 						;; (fci-mode 1)
             (modalka-mode 1)
@@ -151,7 +148,7 @@
 
 (add-hook 'html-mode-hook
 					(lambda ()
-						(nlinum-mode 1)
+						;; (nlinum-mode 1)
 						(auto-complete-mode 1)
 						;; (fci-mode 1)
             (modalka-mode 1)
@@ -164,7 +161,7 @@
 (add-hook 'text-mode-hook
 					(lambda ()
 						;; (column-enforce-mode 1)
-						(nlinum-mode 1)
+						;; (nlinum-mode 1)
             (modalka-mode 1)
 						(auto-fill-mode 1)
 						(flyspell-mode 1)))
@@ -173,7 +170,7 @@
 					(lambda ()
 						;; (column-enforce-mode 1)
 						(auto-fill-mode 1)
-						(nlinum-mode 1)
+						;; (nlinum-mode 1)
             (modalka-mode 1)
 						(flyspell-mode 1)))
 
@@ -284,11 +281,18 @@ ARG is needed for `kill-word'."
 (global-set-key (kbd "C-x K") 'kill-and-delete-window)
 
 
+(use-package emojify
+  :hook ((text-mode     . emojify-mode)
+         (org-mode      . emojify-mode)
+         (markdown-mode . emojify-mode)
+         (erc-mode      . emojify-mode)))
+
+
 (use-package buffer-move
   :bind
-  ("<C-S-up>" . buf-move-up)
-  ("<C-S-down>" . buf-move-down)
-  ("<C-S-left>" . buf-move-left)
+  ("<C-S-up>"    . buf-move-up)
+  ("<C-S-down>"  . buf-move-down)
+  ("<C-S-left>"  . buf-move-left)
   ("<C-S-right>" . buf-move-right))
 
 
@@ -305,9 +309,9 @@ ARG is needed for `kill-word'."
   :bind
   ("C-x p f" . helm-projectile)
   ("C-x C-G" . helm-projectile)
-  ("M-x" . helm-M-x)
+  ("M-x"     . helm-M-x)
   ("C-x C-f" . helm-find-files)
-  ("C-x b" . helm-buffers-list)
+  ("C-x b"   . helm-buffers-list)
   ("C-x H a" . helm-apropos)
   :config
   (setq-default helm-M-x-fuzzy-match                  t
@@ -339,6 +343,19 @@ ARG is needed for `kill-word'."
   (setq slime-contribs '(slime-fancy)))
 ;;(slime-setup '(slime-company))
 ;;(global-company-mode)
+
+(use-package auto-complete
+  :hook
+  ((prog-mode . auto-complete-mode)
+   (html-mode . auto-complete-mode)
+   (slime-mode . auto-complete-mode)
+   (slime-repl-mode . auto-complete-mode))
+  :config
+  (add-to-list 'ac-modes 'slime-repl-mode))
+(use-package ac-slime
+  :hook
+  ((slime-mode . set-up-slime-ac)
+   (slime-repl-mode . set-up-slime-ac)))
 
 
 ;; Racket
@@ -456,12 +473,15 @@ ARG is needed for `kill-word'."
   (modalka-define-kbd "x (" "C-x (")
   (modalka-define-kbd "x )" "C-x )")
   (modalka-define-kbd "x e" "C-x e")
+  (modalka-define-kbd "x e" "C-x e")
+  (define-key modalka-mode-map (kbd "x l") #'nlinum-mode)
   (modalka-define-kbd "x H a" "C-x H a")
   (define-key modalka-mode-map (kbd "x SPC") #'rectangle-mark-mode)
-  (define-key modalka-mode-map (kbd "x *") #'calc)
-  (define-key modalka-mode-map (kbd "x &") #'calendar-mode)
+  (define-key modalka-mode-map (kbd "x 8") #'calc)
+  (define-key modalka-mode-map (kbd "x 7") #'calendar-mode)
   (define-key modalka-mode-map (kbd "y") #'yank)
-  (define-key modalka-mode-map (kbd "z") #'zap-to-char)
+  (define-key modalka-mode-map (kbd "z") #'zap-to-char-edit)
+  (define-key modalka-mode-map (kbd "h z") #'zap-to-char)
   (define-key modalka-mode-map (kbd "SPC") #'set-mark-command)
   (define-key modalka-mode-map (kbd "/") #'undo-tree-undo)
   (define-key modalka-mode-map (kbd "-") #'negative-argument)
@@ -482,19 +502,19 @@ ARG is needed for `kill-word'."
   (define-key modalka-mode-map (kbd "m") #'replace-char)
   (define-key modalka-mode-map (kbd "D") #'delete-forward-word-edit)
   (define-key modalka-mode-map (kbd "S-<backspace>") #'delete-backward-word-edit)
-  (setq-default cursor-type '(bar . 1))
-  (setq modalka-cursor-type 'box))
+  (setq-default cursor-type '(bar . 1)
+                modalka-cursor-type 'box))
 
 
 ;; eshell
 ;; Run "alias sudo 'eshell/sudo $*'" sudo to work right
 (use-package em-tramp
   :init
-  (setq eshell-prefer-lisp-functions t)
-  (setq eshell-prefer-lisp-variables t)
-  (setq password-cache t) ; enable password caching
-  (setq password-cache-expiry 300) ; for 5 minutes (time in secs)
-  (setq tramp-histfile-override "/dev/null"))
+  (setq-default eshell-prefer-lisp-functions t
+                eshell-prefer-lisp-variables t
+                password-cache t ; enable password caching
+                password-cache-expiry 300 ; for 5 minutes (time in secs)
+                tramp-histfile-override "/dev/null"))
 
 
 (use-package projectile
@@ -507,7 +527,7 @@ ARG is needed for `kill-word'."
 
 ;; IDK if this even works
 ;; use web-mode for .jsx files
-(setq flycheck-javascript-eslint-executable "/usr/local/bin/eslint")
+(setq-default flycheck-javascript-eslint-executable "/usr/local/bin/eslint")
 (add-to-list 'auto-mode-alist '("\\.jsx$" . rjsx-mode))
 
 ;;; Haskell
@@ -530,8 +550,8 @@ ARG is needed for `kill-word'."
   ("C-c C-j" . hledger-run-command)
   :init
   (add-to-list 'auto-mode-alist '("\\.journal\\'" . hledger-mode))
-  (setq-default hledger-currency-string "$")
-  (setq-default hledger-jfile "~/personal/money/kev.journal"))
+  (setq-default hledger-currency-string "$"
+                hledger-jfile "~/personal/money/kev.journal"))
 
 
 (use-package darkroom)
@@ -651,7 +671,7 @@ ARG is needed for `kill-word'."
  '(org-s5-theme-file nil)
  '(package-selected-packages
    (quote
-    (nix-mode purescript-mode hledger-mode hyai restclient fireplace elm-mode 2048-game modalka iy-go-to-char material-theme fsharp-mode geiser use-package buffer-move string-inflection solarized-theme github-modern-theme nodejs-repl rjsx-mode jsx-mode omnisharp racket-mode exec-path-from-shell ## typescript-mode json-mode web-mode yasnippet avy ac-emoji markdown-mode org-plus-contrib pdf-tools emojify emms-player-mpv emms image+ nlinum multiple-cursors mic-paren magit highlight-parentheses helm flycheck fill-column-indicator column-enforce-mode auto-complete ace-window)))
+    (ac-slime clojure-mode nix-mode purescript-mode hledger-mode hyai restclient fireplace elm-mode modalka iy-go-to-char fsharp-mode geiser use-package buffer-move string-inflection nodejs-repl rjsx-mode jsx-mode omnisharp racket-mode exec-path-from-shell ## typescript-mode json-mode web-mode yasnippet avy ac-emoji markdown-mode org-plus-contrib pdf-tools emojify emms-player-mpv emms image+ nlinum multiple-cursors mic-paren magit highlight-parentheses helm flycheck fill-column-indicator column-enforce-mode auto-complete ace-window)))
  '(pdf-view-midnight-colors (quote ("#6a737d" . "#fffbdd")))
  '(pos-tip-background-color "#073642")
  '(pos-tip-foreground-color "#93a1a1")

@@ -100,5 +100,14 @@ Delete the word backwards and switch to edit mode."
   (backward-delete-word-no-kill-ring n)
   (modalka-mode -1))
 
+(defun zap-to-char-edit (arg char)
+  "ARG is how many characters you wish to delete, CHAR is the character.
+Delete to character and switch to edit mode."
+  (interactive (list (prefix-numeric-value current-prefix-arg)
+		                 (read-char "Zap to char: " t)))
+  (zap-to-char arg char)
+  (modalka-mode -1))
+
+
 (provide 'func)
 ;;; func.el ends here
