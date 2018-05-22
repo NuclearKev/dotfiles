@@ -4,7 +4,7 @@
 ;;
 ;; My Emacs customizations.  Is there more to say?
 ;;
-;; Packges:
+;; Packages:
 ;;
 ;; ac-emoji
 ;; ace-window
@@ -185,9 +185,15 @@ ARG is needed for `kill-word'."
   (yank)
   (org-table-align))
 
-(add-hook 'org-mode-hook
-            (lambda ()
-              (local-set-key (kbd "C-S-<down>") 'org-table-copy-down-no-inc)))
+
+(use-package org
+  :bind (:map org-mode-map
+              ("C-S-<down>" . org-table-copy-down-no-inc)))
+
+(use-package org-journal
+  :init
+  (setq-default org-journal-dir "~/personal/journal"))
+
 
 (add-hook 'latex-mode-hook
 					(lambda ()
@@ -305,26 +311,44 @@ ARG is needed for `kill-word'."
 ;; (setq ido-use-faces nil)
 
 
-(use-package helm
-  :bind
-  ("C-x p f" . helm-projectile)
-  ("C-x C-G" . helm-projectile)
-  ("M-x"     . helm-M-x)
-  ("C-x C-f" . helm-find-files)
-  ("C-x b"   . helm-buffers-list)
-  ("C-x H a" . helm-apropos)
+(use-package ivy
+  :bind (("C-s" . swiper)
+         ("C-c C-r" . ivy-resume)
+         ("C-x C-f" . counsel-find-file)
+         ("C-x b" . counsel-ibuffer)
+         ("M-x" . counsel-M-x)
+         ("<f1> f" . counsel-describe-function)
+         ("<f1> v" . counsel-describe-variable)
+         ("C-x p f" . counsel-git)      ;this is basically projectile-find-file
+         :map ivy-minibuffer-map
+           ("<return>" 'ivy-alt-done))
   :config
-  (setq-default helm-M-x-fuzzy-match                  t
-                helm-bookmark-show-location           t
-                helm-buffers-fuzzy-matching           t
-                helm-completion-in-region-fuzzy-match t
-                helm-file-cache-fuzzy-match           t
-                helm-imenu-fuzzy-match                t
-                helm-mode-fuzzy-match                 t
-                helm-locate-fuzzy-match               t
-                helm-quick-update                     t
-                helm-recentf-fuzzy-match              t
-                helm-semantic-fuzzy-match             t))
+  (ivy-mode 1)
+  (setq ivy-use-virtual-buffers t
+        enable-recursive-minibuffers t))
+
+(use-package flx)
+
+;; (use-package helm
+;;   :bind
+;;   ("C-x p f" . helm-projectile)
+;;   ("C-x C-G" . helm-projectile)
+;;   ("M-x"     . helm-M-x)
+;;   ("C-x C-f" . helm-find-files)
+;;   ("C-x b"   . helm-buffers-list)
+;;   ("C-x H a" . helm-apropos)
+;;   :config
+;;   (setq-default helm-M-x-fuzzy-match                  t
+;;                 helm-bookmark-show-location           t
+;;                 helm-buffers-fuzzy-matching           t
+;;                 helm-completion-in-region-fuzzy-match t
+;;                 helm-file-cache-fuzzy-match           t
+;;                 helm-imenu-fuzzy-match                t
+;;                 helm-mode-fuzzy-match                 t
+;;                 helm-locate-fuzzy-match               t
+;;                 helm-quick-update                     t
+;;                 helm-recentf-fuzzy-match              t
+;;                 helm-semantic-fuzzy-match             t))
 
 
 
@@ -349,7 +373,8 @@ ARG is needed for `kill-word'."
   ((prog-mode . auto-complete-mode)
    (html-mode . auto-complete-mode)
    (slime-mode . auto-complete-mode)
-   (slime-repl-mode . auto-complete-mode))
+   (slime-repl-mode . auto-complete-mode)
+   (hledger-mode . auto-complete-mode))
   :config
   (add-to-list 'ac-modes 'slime-repl-mode))
 (use-package ac-slime
@@ -364,7 +389,8 @@ ARG is needed for `kill-word'."
   :config
   (setq-default racket-program "/usr/local/bin/racket")
   :bind
-  ("C-c C-l" . racket-run))
+  (:map racket-mode-map
+        ("C-c C-l" . racket-run)))
 
 
 (use-package fsharp-mode
@@ -400,7 +426,8 @@ ARG is needed for `kill-word'."
   (modalka-define-kbd "c o" "C-c C-o")
   (modalka-define-kbd "c e" "C-c C-e")
   (modalka-define-kbd "c j" "C-c C-j")
-  (define-key modalka-mode-map (kbd "c G") #'helm-projectile-grep)
+  (modalka-define-kbd "c r" "C-c C-r")
+  (define-key modalka-mode-map (kbd "c G") #'counsel-grep)
   (modalka-define-kbd "d" "C-d")
   (modalka-define-kbd "e" "C-e")
   (define-key modalka-mode-map (kbd "f") #'forward-char)
@@ -449,7 +476,7 @@ ARG is needed for `kill-word'."
   (define-key modalka-mode-map (kbd "p") #'previous-line)
   (modalka-define-kbd "q" "C-q")
   (define-key modalka-mode-map (kbd "r") #'isearch-backward)
-  (define-key modalka-mode-map (kbd "s") #'isearch-forward)
+  (modalka-define-kbd "s" "C-s")
   (define-key modalka-mode-map (kbd "t") #'transpose-chars)
   (define-key modalka-mode-map (kbd "u") #'universal-argument)
   (define-key modalka-mode-map (kbd "v") #'scroll-up-command)
@@ -532,6 +559,8 @@ ARG is needed for `kill-word'."
 
 ;;; Haskell
 (use-package haskell-interactive-mode
+  :bind (:map haskell-interactive-mode-map
+              ("C-c C-l" . nil))
   :hook (haskell-mode . interactive-haskell-mode))
 (use-package haskell-process)
 (use-package hyai
@@ -539,6 +568,8 @@ ARG is needed for `kill-word'."
   (setq-default hyai-basic-offset 2)
   :hook (haskell-mode . hyai-mode))
 (use-package haskell-mode
+  :bind (:map haskell-mode-map
+              ("C-c C-l" . nil))
   :config
   (haskell-indentation-mode -1)
   (haskell-indent-mode -1))
@@ -546,8 +577,9 @@ ARG is needed for `kill-word'."
 ;;; hledger
 (use-package hledger-mode
   :bind
-  ("C-c C-e" . hledger-jentry)
-  ("C-c C-j" . hledger-run-command)
+  (("C-c C-e" . hledger-jentry)
+   :map hledger-mode-map
+   ("C-c C-j" . hledger-run-command))
   :init
   (add-to-list 'auto-mode-alist '("\\.journal\\'" . hledger-mode))
   (setq-default hledger-currency-string "$"
@@ -671,7 +703,7 @@ ARG is needed for `kill-word'."
  '(org-s5-theme-file nil)
  '(package-selected-packages
    (quote
-    (ac-slime clojure-mode nix-mode purescript-mode hledger-mode hyai restclient fireplace elm-mode modalka iy-go-to-char fsharp-mode geiser use-package buffer-move string-inflection nodejs-repl rjsx-mode jsx-mode omnisharp racket-mode exec-path-from-shell ## typescript-mode json-mode web-mode yasnippet avy ac-emoji markdown-mode org-plus-contrib pdf-tools emojify emms-player-mpv emms image+ nlinum multiple-cursors mic-paren magit highlight-parentheses helm flycheck fill-column-indicator column-enforce-mode auto-complete ace-window)))
+    (rjsx-mode counsel swiper org-journal ac-slime clojure-mode nix-mode purescript-mode hledger-mode hyai restclient fireplace elm-mode modalka iy-go-to-char fsharp-mode geiser use-package buffer-move string-inflection nodejs-repl jsx-mode omnisharp racket-mode exec-path-from-shell ## typescript-mode json-mode web-mode yasnippet avy ac-emoji markdown-mode org-plus-contrib pdf-tools emojify emms-player-mpv emms image+ nlinum multiple-cursors mic-paren magit highlight-parentheses helm flycheck fill-column-indicator column-enforce-mode auto-complete ace-window)))
  '(pdf-view-midnight-colors (quote ("#6a737d" . "#fffbdd")))
  '(pos-tip-background-color "#073642")
  '(pos-tip-foreground-color "#93a1a1")
